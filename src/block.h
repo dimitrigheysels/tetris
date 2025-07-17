@@ -16,7 +16,7 @@ class Block
 public:
     explicit Block() : layout_index_(std::experimental::randint(0, 3)),
                        position_col_(5),
-                       position_row_(3)
+                       position_row_(1)
     {
     }
 

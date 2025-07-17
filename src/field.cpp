@@ -11,7 +11,7 @@ Field::Field()
     {
         for (int col = 0; col < COLS; col++)
         {
-            tiles_[row][col] = std::make_shared<Tile>(col, row);
+            tiles_[row][col] = std::make_shared<Tile>(row, col);
         }
     }
 
@@ -110,7 +110,7 @@ GameState Field::down_block()
         int c = current_block_->get_position_col();
 
         // check for gameover
-        if (r <= 3)
+        if (r <= 1)
         {
             state.game_over = true;
             return state;
@@ -220,7 +220,7 @@ void Field::render(const UI &ui) const
 
 void Field::display(sf::RenderWindow &w) const
 {
-    for (int row = 4; row < ROWS; row++)
+    for (int row = 1; row < ROWS; row++)
     {
         for (int col = 0; col < COLS; col++)
         {

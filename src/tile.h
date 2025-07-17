@@ -9,8 +9,8 @@ class Block;
 class Tile
 {
 private:
-    int x_;
-    int y_;
+    int r_;
+    int c_;
 
     std::shared_ptr<Block> block_;
 
@@ -18,7 +18,7 @@ private:
     bool is_fixed_{false};
 
 public:
-    Tile(int x, int y) : x_(x), y_(y) {}
+    Tile(int r, int c) : r_(r), c_(c) {}
 
     virtual ~Tile() = default;
 

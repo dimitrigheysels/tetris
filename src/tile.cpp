@@ -8,7 +8,7 @@ void Tile::set_fixed()
 
 void Tile::update(const std::shared_ptr<Block> block)
 {
-    if (block->get_current_layout()[y_ - block->get_position_row()][x_ - block->get_position_col()])
+    if (block->get_current_layout()[r_ - block->get_position_row()][c_ - block->get_position_col()])
     {
         set_block(block);
     }
@@ -21,7 +21,7 @@ void Tile::update(const std::shared_ptr<Block> block)
 void Tile::display(sf::RenderWindow &w)
 {
     sf::RectangleShape shape = sf::RectangleShape(sf::Vector2f(SIZE_TILE, SIZE_TILE));
-    shape.setPosition(x_ * SIZE_TILE, y_ * SIZE_TILE);
+    shape.setPosition(c_ * SIZE_TILE, r_ * SIZE_TILE);
     shape.setOutlineColor(sf::Color::Black);
     shape.setOutlineThickness(-1.0f);
 
