@@ -127,7 +127,6 @@ void Block::rotate()
 
 void Block::display(sf::RenderWindow &w) const
 {
-    // auto r = sf::RectangleShape(sf::Vector2f(80.0f, 80.0f));
     auto layout = get_current_layout();
 
     for (int row = 0; row < 4; row++)

@@ -1,6 +1,7 @@
 
 #include <experimental/random>
 #include <sstream>
+#include <iomanip>
 
 #include "field.h"
 #include "ui.h"
@@ -131,23 +132,11 @@ GameState Field::down_block()
             }
         }
 
-        // find full lines...
+        // process full lines...
         int nr_of_full_lines = 0;
-        int full_line_indexes[4]{0};
-        for (int row = r; row < std::min(ROWS - 1, r + 4); row++)
-        {
-            bool full_line{true};
+        int full_line_indexes[4] = {0};
 
-            for (int col = 1; col < COLS - 1; col++)
-            {
-                full_line &= (tiles_[row][col]->is_fixed());
-            }
-            if (full_line)
-            {
-                full_line_indexes[nr_of_full_lines] = row;
-                nr_of_full_lines++;
-            }
-        }
+        nr_of_full_lines = check_full_lines(r, full_line_indexes);
 
         // ...  and move tiles down
         for (int row_index : full_line_indexes)
@@ -243,21 +232,21 @@ void Field::display(sf::RenderWindow &w) const
     {
         for (int j = 0; j < COLS; j += 4)
         {
-            ss << i << "@" << j
+            ss << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j
                << " fixed: " << tiles_[i][j]->is_fixed()
-               << " block: " << tiles_[i][j]->get_block()
+               << " block: " << std::right << std::setw(14) << tiles_[i][j]->get_block()
                << "\t"
-               << i << "@" << j + 1
+               << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 1
                << " fixed: " << tiles_[i][j + 1]->is_fixed()
-               << " block: " << tiles_[i][j + 1]->get_block()
+               << " block: " << std::right << std::setw(14) << tiles_[i][j + 1]->get_block()
                << "\t"
-               << i << "@" << j + 2
+               << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 2
                << " fixed: " << tiles_[i][j + 2]->is_fixed()
-               << " block: " << tiles_[i][j + 2]->get_block()
+               << " block: " << std::right << std::setw(14) << tiles_[i][j + 2]->get_block()
                << "\t"
-               << i << "@" << j + 3
+               << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 3
                << " fixed: " << tiles_[i][j + 3]->is_fixed()
-               << " block: " << tiles_[i][j + 3]->get_block() << std::endl;
+               << " block: " << std::right << std::setw(14) << tiles_[i][j + 3]->get_block() << std::endl;
         }
     }
 
@@ -307,4 +296,31 @@ std::shared_ptr<Block> Field::generate_block() const
 
     // should not happen
     return nullptr;
+}
+
+int Field::check_full_lines(int from_row, int *full_line_indexes) const
+{
+    int nr_of_full_lines = 0;
+    for (int row = from_row; row < std::min(ROWS - 1, from_row + 4); row++)
+    {
+        if (check_full_line(row))
+        {
+            full_line_indexes[nr_of_full_lines++] = row;
+        }
+    }
+
+    return nr_of_full_lines;
+}
+
+bool Field::check_full_line(int row) const
+{
+    for (int col = 1; col < COLS - 1; col++)
+    {
+        if (!tiles_[row][col]->is_fixed())
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
