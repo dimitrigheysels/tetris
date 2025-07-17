@@ -42,8 +42,6 @@ public:
     bool can_rotate(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const;
     void rotate();
 
-    bool tile_is_part_of_block(int row, int col);
-
     std::optional<int> get_bottom_boundary(int col) const;
     std::optional<int> get_left_boundary(int row) const;
     std::optional<int> get_right_boundary(int row) const;
@@ -96,7 +94,7 @@ class S_Block : public Block
 private:
     static constexpr layout_t LAYOUTS[4] = {{{false, false, false, false},  // |P| | | |
                                              {false, true, true, false},    // | |x|x| |
-                                             {false, true, true, false},    // |x|x| | |
+                                             {true, true, false, false},    // |x|x| | |
                                              {false, false, false, false}}, // | | | | |
 
                                             {{false, false, false, false}, // |P| | | |
@@ -106,7 +104,7 @@ private:
 
                                             {{false, false, false, false},  // |P| | | |
                                              {false, true, true, false},    // | |x|x| |
-                                             {false, true, true, false},    // |x|x| | |
+                                             {true, true, false, false},    // |x|x| | |
                                              {false, false, false, false}}, // | | | | |
 
                                             {{false, false, false, false},  // |P| | | |

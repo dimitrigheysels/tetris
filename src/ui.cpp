@@ -4,7 +4,7 @@
 
 UI::UI()
 {
-    window_ = std::make_shared<sf::RenderWindow>(sf::VideoMode(800, 600), "MyTetris");
+    window_ = std::make_shared<sf::RenderWindow>(sf::VideoMode(1280, 1024), "MyTetris");
     font.loadFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
 }
 
@@ -31,7 +31,7 @@ bool UI::poll_event(sf::Event &event)
 void UI::display_scoreboard(int score) const
 {
     sf::RectangleShape scoreboard(sf::Vector2f(100.0, 100.0));
-    scoreboard.setPosition(600, 100);
+    scoreboard.setPosition((COLS * SIZE_TILE) + 50, 200);
     scoreboard.setFillColor(sf::Color::White);
 
     std::stringstream ss;

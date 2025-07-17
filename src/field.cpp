@@ -1,5 +1,6 @@
 
 #include <experimental/random>
+#include <sstream>
 
 #include "field.h"
 #include "ui.h"
@@ -7,6 +8,8 @@
 
 Field::Field()
 {
+    font.loadFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
+
     for (int row = 0; row < ROWS; row++)
     {
         for (int col = 0; col < COLS; col++)
@@ -51,7 +54,7 @@ void Field::update_tiles()
     // clear the old 4 tiles above
     if (block_row > 0)
     {
-        for (int col = block_col; col < block_col + 4; col++)
+        for (int col = block_col; col < std::min(COLS - 1, block_col + 4); col++)
         {
             if (!tiles_[block_row - 1][col]->is_fixed())
             {
@@ -63,7 +66,7 @@ void Field::update_tiles()
     // clear old 4 tiles left
     if (block_col > 0) // do not clear boundary of field
     {
-        for (int row = block_row; row < block_row + 4; row++)
+        for (int row = block_row; row < std::min(ROWS - 1, block_row + 4); row++)
         {
             if (!tiles_[row][block_col - 1]->is_fixed())
             {
@@ -75,7 +78,7 @@ void Field::update_tiles()
     // clear old 4 tiles right
     if (block_col < COLS - 1 - 4) // do not clear boundary of field
     {
-        for (int row = block_row; row < block_row + 4; row++)
+        for (int row = block_row; row < std::min(ROWS - 1, block_row + 4); row++)
         {
             if (!tiles_[row][block_col + 3 + 1]->is_fixed())
             {
@@ -84,7 +87,7 @@ void Field::update_tiles()
         }
     }
 
-    for (int row = block_row; row < block_row + 4; row++)
+    for (int row = block_row; row < std::min(ROWS - 1, block_row + 4); row++)
     {
         for (int col = block_col; col < block_col + 4; col++)
         {
@@ -121,7 +124,7 @@ GameState Field::down_block()
         {
             for (int col = c; col < c + 4; col++)
             {
-                if (current_block_->tile_is_part_of_block(row - r, col - c))
+                if (current_block_->get_current_layout()[row - r][col - c])
                 {
                     tiles_[row][col]->set_fixed();
                 }
@@ -131,7 +134,7 @@ GameState Field::down_block()
         // find full lines...
         int nr_of_full_lines = 0;
         int full_line_indexes[4]{0};
-        for (int row = r; row < r + 4; row++)
+        for (int row = r; row < std::min(ROWS - 1, r + 4); row++)
         {
             bool full_line{true};
 
@@ -228,14 +231,36 @@ void Field::display(sf::RenderWindow &w) const
         }
     }
 
-    // auto r = sf::RectangleShape();
-    // r.setSize(sf::Vector2f(200.0, 300.0));
+    auto r = sf::RectangleShape();
+    r.setSize(sf::Vector2f(810.0, 1000.0));
 
-    // r.setOutlineColor(sf::Color::Blue);
-    // r.setOutlineThickness(1);
-    // r.move(800 - 350, 0);
+    r.setOutlineColor(sf::Color::Blue);
+    r.setOutlineThickness(1);
+    r.move(450, 20);
 
-    // std::stringstream ss;
+    std::stringstream ss;
+    for (int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLS; j += 4)
+        {
+            ss << i << "@" << j
+               << " fixed: " << tiles_[i][j]->is_fixed()
+               << " block: " << tiles_[i][j]->get_block()
+               << "\t"
+               << i << "@" << j + 1
+               << " fixed: " << tiles_[i][j + 1]->is_fixed()
+               << " block: " << tiles_[i][j + 1]->get_block()
+               << "\t"
+               << i << "@" << j + 2
+               << " fixed: " << tiles_[i][j + 2]->is_fixed()
+               << " block: " << tiles_[i][j + 2]->get_block()
+               << "\t"
+               << i << "@" << j + 3
+               << " fixed: " << tiles_[i][j + 3]->is_fixed()
+               << " block: " << tiles_[i][j + 3]->get_block() << std::endl;
+        }
+    }
+
     // for (const auto &b : all_blocks)
     // {
     //     if (auto x = b.lock())
@@ -244,13 +269,13 @@ void Field::display(sf::RenderWindow &w) const
     //     }
     // }
 
-    // sf::Text t(ss.str(), font, 12);
-    // t.setPosition(r.getPosition().x + 10, r.getPosition().y + 20);
+    sf::Text t(ss.str(), font, 10);
+    t.setPosition(r.getPosition().x + 1, r.getPosition().y + 5);
 
-    // t.setOutlineThickness(1);
+    t.setOutlineThickness(1);
 
-    // w.draw(r);
-    // w.draw(t);
+    w.draw(r);
+    w.draw(t);
 }
 
 std::shared_ptr<Block> Field::generate_block() const

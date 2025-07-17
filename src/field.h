@@ -21,7 +21,7 @@ private:
 
     // bool is_started;
     //  std::vector<std::weak_ptr<Block>> all_blocks;
-    //  sf::Font font;
+    sf::Font font;
 
     std::shared_ptr<Block> generate_block() const;
 

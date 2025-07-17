@@ -1,11 +1,6 @@
 #include "block.h"
 #include "field.h"
 
-bool Block::tile_is_part_of_block(int row, int col)
-{
-    return get_current_layout()[row][col];
-}
-
 std::optional<int> Block::get_bottom_boundary(int col) const
 {
     for (int i = 3; i >= 0; i--)

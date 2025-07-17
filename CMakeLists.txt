@@ -13,7 +13,7 @@ FetchContent_MakeAvailable(SFML)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
-add_compile_options(-g)
+add_compile_options(-g -rdynamic)
 
 add_executable(MyTetris src/main.cpp src/ui.cpp src/game.cpp src/player.cpp src/field.cpp src/tile.cpp src/block.cpp)
 
