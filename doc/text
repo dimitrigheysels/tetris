@@ -1,0 +1,50 @@
+This repository contains a clone of the Tetris game.  
+
+> CMake is used as software build system (https://cmake.org/)
+> SFML is used as graphics library (https://en.wikipedia.org/wiki/Simple_and_Fast_Multimedia_Library)
+
+Main.cpp
+========
+
+Contains the 'game-loop'.
+Retrieve input from UI, update the 'Game' and render it to the screen
+
+Game.cpp
+========
+The 'Game' object controls the game.
+putting on 'pause'
+'gameover'
+contains the player and passes input to the 'Player' object
+
+Player.cpp
+==========
+Keeps the score
+Has a reference to the playing field
+
+The 'Player' object manipulates the playing field by sending the appropriate key-strokes (up, left, right, down) to the 'Field' object.
+
+Field.cpp
+=========
+Represents the playing field.
+contains array of 'Tile' objects:
+holds a reference to the 'current_block' and 'next_block'
+
+checks if gameover
+checks for complete lines
+Updates the tiles based on the position of the 'current_block'
+
+Tile.cpp
+========
+Represents 1 part of the playing field
+holds a reference to the 'Block' object which overlaps the tile.
+
+Block.cpp
+==========
+Knows its (four) layout's (for each rotation)
+Contains its 'position' (row/col) in the field and its current 'layout' (based on rotation)
+
+Contains the logic to move itself and does boundary check
+
+UI.cpp
+======
+Extra layer for UI input

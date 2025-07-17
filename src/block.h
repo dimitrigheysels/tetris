@@ -94,20 +94,20 @@ public:
 class S_Block : public Block
 {
 private:
-    static constexpr layout_t LAYOUTS[4] = {{{false, false, false, false}, // |P| | | |
-                                             {false, false, false, false}, // | | | | |
-                                             {false, true, true, false},   // | |x|x| |
-                                             {true, true, false, false}},  // |x|x| | |
+    static constexpr layout_t LAYOUTS[4] = {{{false, false, false, false},  // |P| | | |
+                                             {false, true, true, false},    // | |x|x| |
+                                             {false, true, true, false},    // |x|x| | |
+                                             {false, false, false, false}}, // | | | | |
 
                                             {{false, false, false, false}, // |P| | | |
                                              {true, false, false, false},  // |x| | | |
                                              {true, true, false, false},   // |x|x| | |
                                              {false, true, false, false}}, // | |x| | |
 
-                                            {{false, false, false, false}, // |P| | | |
-                                             {false, false, false, false}, // | | | | |
-                                             {false, true, true, false},   // | |x|x| |
-                                             {true, true, false, false}},  // |x|x| | |
+                                            {{false, false, false, false},  // |P| | | |
+                                             {false, true, true, false},    // | |x|x| |
+                                             {false, true, true, false},    // |x|x| | |
+                                             {false, false, false, false}}, // | | | | |
 
                                             {{false, false, false, false},  // |P| | | |
                                              {true, false, false, false},   // |x| | | |
@@ -128,10 +128,10 @@ public:
 class Z_Block : public Block
 {
 private:
-    static constexpr layout_t LAYOUTS[4] = {{{false, false, false, false}, // |P| | | |
-                                             {false, false, false, false}, // | | | | |
-                                             {true, true, false, false},   // |x|x| | |
-                                             {false, true, true, false}},  // | |x|x| |
+    static constexpr layout_t LAYOUTS[4] = {{{false, false, false, false},  // |P| | | |
+                                             {true, true, false, false},    // |x|x| | |
+                                             {false, true, true, false},    // | |x|x| |
+                                             {false, false, false, false}}, // | | | | |
 
                                             {{false, false, false, false}, // |P| | | |
                                              {false, true, false, false},  // | |x| | |
@@ -144,9 +144,9 @@ private:
                                              {false, false, false, false}}, // | | | | |
 
                                             {{false, false, false, false},  // |P| | | |
-                                             {false, false, true, false},   // | | |x| |
-                                             {false, true, true, false},    // | |x|x| |
-                                             {false, true, false, false}}}; // | |x| | |
+                                             {false, true, false, false},   // | |x| | |
+                                             {true, true, false, false},    // |x|x| | |
+                                             {true, false, false, false}}}; // |x| | | |
 public:
     explicit Z_Block() : Block()
     {
@@ -267,25 +267,25 @@ public:
 class O_Block : public Block
 {
 private:
-    static constexpr layout_t LAYOUTS[4] = {{{false, false, false, false}, // |P| | | |
-                                             {false, false, false, false}, // | | | | |
-                                             {true, true, false, false},   // |x|x| | |
-                                             {true, true, false, false}},  // |x|x| | |
+    static constexpr layout_t LAYOUTS[4] = {{{true, true, false, false},    // |P|x| | |
+                                             {true, true, false, false},    // |x|x| | |
+                                             {false, false, false, false},  // | | | | |
+                                             {false, false, false, false}}, // | | | | |
 
-                                            {{false, false, false, false}, // |P| | | |
-                                             {false, false, false, false}, // | | | | |
-                                             {true, true, false, false},   // |x|x| | |
-                                             {true, true, false, false}},  // |x|x| | |
+                                            {{true, true, false, false},    // |P|x| | |
+                                             {true, true, false, false},    // |x|x| | |
+                                             {false, false, false, false},  // | | | | |
+                                             {false, false, false, false}}, // | | | | |
 
-                                            {{false, false, false, false}, // |P| | | |
-                                             {false, false, false, false}, // | | | | |
-                                             {true, true, false, false},   // |x|x| | |
-                                             {true, true, false, false}},  // |x|x| | |
+                                            {{true, true, false, false},    // |P|x| | |
+                                             {true, true, false, false},    // |x|x| | |
+                                             {false, false, false, false},  // | | | | |
+                                             {false, false, false, false}}, // | | | | |
 
-                                            {{false, false, false, false}, // |P| | | |
-                                             {false, false, false, false}, // | | | | |
-                                             {true, true, false, false},   // |x|x| | |
-                                             {true, true, false, false}}}; // |x|x| | |
+                                            {{true, true, false, false},     // |P|x| | |
+                                             {true, true, false, false},     // |x|x| | |
+                                             {false, false, false, false},   // | | | | |
+                                             {false, false, false, false}}}; // | | | | |
 
 public:
     explicit O_Block() : Block()
