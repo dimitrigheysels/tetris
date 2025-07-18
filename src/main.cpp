@@ -30,7 +30,9 @@ int main()
             clock_.restart();
         }
 
+        ui.clear();
         game.display(ui);
+        ui.display();
     }
 
     // cleanup

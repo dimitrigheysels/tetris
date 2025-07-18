@@ -1,4 +1,5 @@
 #include <sstream>
+#include <iostream>
 #include <iomanip>
 
 #include "ui.h"
@@ -29,13 +30,33 @@ bool UI::poll_event(sf::Event &event)
     return window_->pollEvent(event);
 }
 
-void UI::render_scoreboard(int score) const
+void UI::render_highscore(int score) const
 {
     sf::RectangleShape scoreboard(sf::Vector2f(100.0, 100.0));
     scoreboard.setPosition((COLS * SIZE_TILE) + 50, 200);
     scoreboard.setFillColor(sf::Color::White);
 
     std::stringstream ss;
+    ss << "player highscore: " << score << std::endl;
+
+    sf::Text score_text(ss.str(), font, 12);
+    score_text.setPosition(scoreboard.getPosition().x + 10, scoreboard.getPosition().y + 10);
+
+    score_text.setOutlineThickness(1);
+
+    window_->draw(scoreboard);
+    window_->draw(score_text);
+}
+
+void UI::render_scoreboard(int level, int score, int nr_of_lines) const
+{
+    sf::RectangleShape scoreboard(sf::Vector2f(100.0, 100.0));
+    scoreboard.setPosition((COLS * SIZE_TILE) + 50, 350);
+    scoreboard.setFillColor(sf::Color::White);
+
+    std::stringstream ss;
+    ss << "level: " << level << std::endl;
+    ss << "nr of lines: " << nr_of_lines << std::endl;
     ss << "score: " << score << std::endl;
 
     sf::Text score_text(ss.str(), font, 12);
@@ -140,4 +161,18 @@ void UI::render_next(const Block &block) const
             }
         }
     }
+}
+
+void UI::render_gameover() const
+{
+    sf::Text gameover_text("G A M E     O V E R\nnew game (y/n)", font, 30);
+
+    int gameover_textwidth = gameover_text.getLocalBounds().width;
+    int gameover_textheight = gameover_text.getLocalBounds().height;
+
+    gameover_text.setPosition((window_->getSize().x - gameover_textwidth) / 2,
+                              (window_->getSize().y - gameover_textheight) / 2);
+    gameover_text.setOutlineThickness(3);
+
+    window_->draw(gameover_text);
 }

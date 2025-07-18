@@ -3,7 +3,13 @@
 #include "ui.h"
 #include "game.h"
 
-Player::Player() : score_(0)
+Player::Player() : highscore_(0)
+{
+    field_ = std::make_shared<Field>();
+    field_->add_new_block();
+}
+
+void Player::start_new_game()
 {
     field_ = std::make_shared<Field>();
     field_->add_new_block();
@@ -36,10 +42,13 @@ void Player::game_over()
 void Player::display(const UI &ui) const
 {
     field_->display(ui);
-    ui.render_scoreboard(score_);
+    ui.render_highscore(highscore_);
 }
 
-void Player::update_score(int nr_of_full_lines)
+void Player::update_highscore(int score)
 {
-    score_ += nr_of_full_lines;
+    if (score > highscore_)
+    {
+        highscore_ = score;
+    }
 }
