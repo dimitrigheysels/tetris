@@ -19,8 +19,6 @@ private:
 
     std::weak_ptr<Player> player_;
 
-    // bool is_started;
-    //  std::vector<std::weak_ptr<Block>> all_blocks;
     sf::Font font;
 
     std::shared_ptr<Block> generate_block() const;
@@ -30,8 +28,6 @@ private:
 public:
     Field();
 
-    // void start();
-
     void add_new_block();
     void update_tiles();
 
@@ -40,6 +36,5 @@ public:
     void right_block();
     void up_block();
 
-    void render(const UI &ui) const;
-    void display(sf::RenderWindow &w) const;
+    void display(const UI &ui) const;
 };

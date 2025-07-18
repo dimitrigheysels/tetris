@@ -33,10 +33,10 @@ void Player::game_over()
 {
 }
 
-void Player::render(const UI &ui) const
+void Player::display(const UI &ui) const
 {
-    field_->render(ui);
-    ui.display_scoreboard(score_);
+    field_->display(ui);
+    ui.render_scoreboard(score_);
 }
 
 void Player::update_score(int nr_of_full_lines)

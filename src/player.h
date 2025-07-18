@@ -25,5 +25,5 @@ public:
     void game_over();
     void update_score(int nr_of_full_lines);
 
-    void render(const UI &ui) const;
+    void display(const UI &ui) const;
 };

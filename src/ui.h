@@ -15,16 +15,16 @@ public:
     UI();
     ~UI() = default;
 
-    void clear();
-    void display();
+    void clear() const;
+    void display() const;
 
     bool is_open();
     void close();
 
-    // should return a custom structure containing event-data
     bool poll_event(sf::Event &event);
 
-    void display_scoreboard(int score) const;
-    void display_field(const Field &field) const;
-    void display_next(const Block &block) const;
+    void render_scoreboard(int score) const;
+    void render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const;
+    void render_tile(int r, int c, const std::shared_ptr<Tile> tile) const;
+    void render_next(const Block &block) const;
 };

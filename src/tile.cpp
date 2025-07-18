@@ -1,9 +1,48 @@
 #include "tile.h"
 #include "block.h"
 
-void Tile::set_fixed()
+void Tile::clear()
 {
+    is_fixed_ = false;
+    if (block_)
+    {
+        block_ = nullptr;
+    }
+}
+
+std::shared_ptr<Block> Tile::get_block() const
+{
+    return block_;
+}
+
+void Tile::set_block(std::shared_ptr<Block> block)
+{
+    block_ = block;
+}
+
+void Tile::unset_block()
+{
+    if (block_)
+    {
+        block_ = nullptr;
+    }
+}
+
+bool Tile::is_boundary() const { return is_boundary_; }
+
+void Tile::set_boundary(bool o) { is_boundary_ = o; }
+
+bool Tile::is_fixed() const { return is_fixed_; }
+
+void Tile::set_fixed(const std::shared_ptr<Block> block)
+{
+    block_ = block;
     is_fixed_ = true;
+}
+
+bool Tile::is_free() const
+{
+    return !is_boundary_ && !block_ && !is_fixed_;
 }
 
 void Tile::update(const std::shared_ptr<Block> block)
@@ -14,29 +53,6 @@ void Tile::update(const std::shared_ptr<Block> block)
     }
     else
     {
-        remove_block();
+        unset_block();
     }
-}
-
-void Tile::display(sf::RenderWindow &w)
-{
-    sf::RectangleShape shape = sf::RectangleShape(sf::Vector2f(SIZE_TILE, SIZE_TILE));
-    shape.setPosition(c_ * SIZE_TILE, r_ * SIZE_TILE);
-    shape.setOutlineColor(sf::Color::Black);
-    shape.setOutlineThickness(-1.0f);
-
-    if (is_boundary_)
-    {
-        shape.setFillColor(sf::Color(128, 128, 128));
-    }
-    else if (block_)
-    {
-        shape.setFillColor(block_->get_color());
-    }
-    else
-    {
-        shape.setFillColor(sf::Color(64, 64, 64));
-    }
-
-    w.draw(shape);
 }

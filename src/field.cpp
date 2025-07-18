@@ -36,13 +36,13 @@ void Field::add_new_block()
     if (next_block_)
     {
         current_block_ = next_block_;
-        next_block_ = generate_block();
     }
     else
     {
         current_block_ = generate_block();
-        next_block_ = generate_block();
     }
+
+    next_block_ = generate_block();
 
     update_tiles();
 }
@@ -59,7 +59,7 @@ void Field::update_tiles()
         {
             if (!tiles_[block_row - 1][col]->is_fixed())
             {
-                tiles_[block_row - 1][col]->remove_block();
+                tiles_[block_row - 1][col]->unset_block();
             }
         }
     }
@@ -71,7 +71,7 @@ void Field::update_tiles()
         {
             if (!tiles_[row][block_col - 1]->is_fixed())
             {
-                tiles_[row][block_col - 1]->remove_block();
+                tiles_[row][block_col - 1]->unset_block();
             }
         }
     }
@@ -83,7 +83,7 @@ void Field::update_tiles()
         {
             if (!tiles_[row][block_col + 3 + 1]->is_fixed())
             {
-                tiles_[row][block_col + 3 + 1]->remove_block();
+                tiles_[row][block_col + 3 + 1]->unset_block();
             }
         }
     }
@@ -110,32 +110,19 @@ GameState Field::down_block()
     }
     else
     {
-        int r = current_block_->get_position_row();
-        int c = current_block_->get_position_col();
-
         // check for gameover
+        int r = current_block_->get_position_row();
         if (r <= 1)
         {
             state.game_over = true;
             return state;
         }
 
-        // consolidate block
-        for (int row = r; row < r + 4; row++)
-        {
-            for (int col = c; col < c + 4; col++)
-            {
-                if (current_block_->get_current_layout()[row - r][col - c])
-                {
-                    tiles_[row][col]->set_fixed();
-                }
-            }
-        }
+        current_block_->set_fixed_in_field(tiles_);
 
         // process full lines...
         int nr_of_full_lines = 0;
         int full_line_indexes[4] = {0};
-
         nr_of_full_lines = check_full_lines(r, full_line_indexes);
 
         // ...  and move tiles down
@@ -152,8 +139,7 @@ GameState Field::down_block()
                         auto b = tiles_[row - 1][col]->get_block();
                         if (b)
                         {
-                            tiles_[row][col]->set_block(b);
-                            tiles_[row][col]->set_fixed();
+                            tiles_[row][col]->set_fixed(b);
                         }
                         else
                         {
@@ -164,6 +150,7 @@ GameState Field::down_block()
             }
         }
 
+        // show next block
         add_new_block();
 
         state.nr_of_full_lines = nr_of_full_lines;
@@ -204,67 +191,10 @@ void Field::up_block()
     update_tiles();
 }
 
-void Field::render(const UI &ui) const
+void Field::display(const UI &ui) const
 {
-    ui.display_field(*this);
-    ui.display_next(*next_block_);
-}
-
-void Field::display(sf::RenderWindow &w) const
-{
-    for (int row = 1; row < ROWS; row++)
-    {
-        for (int col = 0; col < COLS; col++)
-        {
-            tiles_[row][col]->display(w);
-        }
-    }
-
-    auto r = sf::RectangleShape();
-    r.setSize(sf::Vector2f(810.0, 1000.0));
-
-    r.setOutlineColor(sf::Color::Blue);
-    r.setOutlineThickness(1);
-    r.move(450, 20);
-
-    std::stringstream ss;
-    for (int i = 0; i < ROWS; i++)
-    {
-        for (int j = 0; j < COLS; j += 4)
-        {
-            ss << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j
-               << " fixed: " << tiles_[i][j]->is_fixed()
-               << " block: " << std::right << std::setw(14) << tiles_[i][j]->get_block()
-               << "\t"
-               << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 1
-               << " fixed: " << tiles_[i][j + 1]->is_fixed()
-               << " block: " << std::right << std::setw(14) << tiles_[i][j + 1]->get_block()
-               << "\t"
-               << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 2
-               << " fixed: " << tiles_[i][j + 2]->is_fixed()
-               << " block: " << std::right << std::setw(14) << tiles_[i][j + 2]->get_block()
-               << "\t"
-               << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 3
-               << " fixed: " << tiles_[i][j + 3]->is_fixed()
-               << " block: " << std::right << std::setw(14) << tiles_[i][j + 3]->get_block() << std::endl;
-        }
-    }
-
-    // for (const auto &b : all_blocks)
-    // {
-    //     if (auto x = b.lock())
-    //     {
-    //         ss << "(" << x->get_position_row() << ", " << x->get_position_col() << "): " << b.use_count() << " references" << std::endl;
-    //     }
-    // }
-
-    sf::Text t(ss.str(), font, 10);
-    t.setPosition(r.getPosition().x + 1, r.getPosition().y + 5);
-
-    t.setOutlineThickness(1);
-
-    w.draw(r);
-    w.draw(t);
+    ui.render_tiles(tiles_);
+    ui.render_next(*next_block_);
 }
 
 std::shared_ptr<Block> Field::generate_block() const

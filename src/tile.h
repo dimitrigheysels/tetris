@@ -22,42 +22,18 @@ public:
 
     virtual ~Tile() = default;
 
-    void clear()
-    {
-        is_fixed_ = false;
-        block_ = nullptr;
-    }
+    void clear();
+    std::shared_ptr<Block> get_block() const;
+    void set_block(std::shared_ptr<Block> block);
+    void unset_block();
 
-    void remove_block()
-    {
-        if (block_)
-        {
-            block_ = nullptr;
-        }
-    }
+    bool is_boundary() const;
+    void set_boundary(bool o);
 
-    std::shared_ptr<Block> get_block() const
-    {
-        return block_;
-    }
+    bool is_fixed() const;
+    void set_fixed(const std::shared_ptr<Block> block);
 
-    void set_block(std::shared_ptr<Block> block)
-    {
-        block_ = block;
-    }
-
-    void set_boundary(bool o) { is_boundary_ = o; }
-
-    inline bool is_free() const
-    {
-        return !is_boundary_ && !block_ && !is_fixed_;
-    }
-
-    void set_fixed();
-
-    bool is_boundary() const { return is_boundary_; }
-    bool is_fixed() const { return is_fixed_; }
+    bool is_free() const;
 
     void update(const std::shared_ptr<Block> block);
-    void display(sf::RenderWindow &w);
 };

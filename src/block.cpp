@@ -1,6 +1,21 @@
 #include "block.h"
 #include "field.h"
 
+void Block::set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS])
+{
+
+    for (int row = position_row_; row < position_row_ + 4; row++)
+    {
+        for (int col = position_col_; col < position_col_ + 4; col++)
+        {
+            if (get_current_layout()[row - position_row_][col - position_col_])
+            {
+                tiles_[row][col]->set_fixed(shared_from_this());
+            }
+        }
+    }
+}
+
 std::optional<int> Block::get_bottom_boundary(int col) const
 {
     for (int i = 3; i >= 0; i--)
@@ -123,28 +138,6 @@ bool Block::can_rotate(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
 void Block::rotate()
 {
     layout_index_ = (layout_index_ + 1) % 4;
-}
-
-void Block::display(sf::RenderWindow &w) const
-{
-    auto layout = get_current_layout();
-
-    for (int row = 0; row < 4; row++)
-    {
-        for (int col = 0; col < 4; col++)
-        {
-            if (layout[row][col])
-            {
-                auto shape = sf::RectangleShape(sf::Vector2f(SIZE_TILE, SIZE_TILE));
-                shape.setPosition(X_NEXT_BLOCK + (col * SIZE_TILE), Y_NEXT_BLOCK + (row * SIZE_TILE));
-                shape.setOutlineColor(sf::Color::Black);
-                shape.setOutlineThickness(-1.0f);
-                shape.setFillColor(get_color());
-
-                w.draw(shape);
-            }
-        }
-    }
 }
 
 const layout_t &I_Block::get_current_layout() const

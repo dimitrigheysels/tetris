@@ -27,5 +27,5 @@ public:
 
     void game_over();
 
-    void render(const UI &ui) const;
+    void display(const UI &ui) const;
 };

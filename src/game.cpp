@@ -2,6 +2,7 @@
 
 #include "game.h"
 #include "global.h"
+#include "ui.h"
 
 Game::Game() : is_running_(true), is_paused_(false)
 {
@@ -69,9 +70,11 @@ void Game::game_over()
     is_running_ = false;
 }
 
-void Game::render(const UI &ui) const
+void Game::display(const UI &ui) const
 {
-    player_->render(ui);
+    ui.clear();
+    player_->display(ui);
+    ui.display();
 }
 
 void Game::process_game_state(const GameState &state)

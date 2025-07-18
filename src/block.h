@@ -11,7 +11,7 @@
 
 typedef bool layout_t[4][4];
 
-class Block
+class Block : public std::enable_shared_from_this<Block>
 {
 public:
     explicit Block() : layout_index_(std::experimental::randint(0, 3)),
@@ -30,6 +30,10 @@ protected:
     int position_row_;
 
 public:
+    virtual const layout_t &get_current_layout() const = 0;
+    virtual const layout_t &get_layout_after_rotation() const = 0;
+    virtual sf::Color get_color() const = 0;
+
     bool can_down(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const;
     void down();
 
@@ -45,14 +49,16 @@ public:
     std::optional<int> get_bottom_boundary(int col) const;
     std::optional<int> get_left_boundary(int row) const;
     std::optional<int> get_right_boundary(int row) const;
-    virtual const layout_t &get_current_layout() const = 0;
-    virtual const layout_t &get_layout_after_rotation() const = 0;
-    virtual sf::Color get_color() const = 0;
 
-    inline int get_position_row() { return position_row_; }
+    void set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]);
+
+    inline int get_position_row()
+    {
+        return position_row_;
+    }
     inline int get_position_col() { return position_col_; }
 
-    void display(sf::RenderWindow &w) const;
+    // void display(sf::RenderWindow &w) const;
 };
 
 class I_Block : public Block
