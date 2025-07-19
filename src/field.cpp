@@ -65,7 +65,7 @@ void Field::update_tiles()
     }
 
     // clear old 4 tiles left
-    if (block_col > 0) // do not clear boundary of field
+    if (block_col > 1) // do not clear boundary of field
     {
         for (int row = block_row; row < std::min(ROWS - 1, block_row + 4); row++)
         {
@@ -90,7 +90,7 @@ void Field::update_tiles()
 
     for (int row = block_row; row < std::min(ROWS - 1, block_row + 4); row++)
     {
-        for (int col = block_col; col < block_col + 4; col++)
+        for (int col = block_col; col < std::min(COLS - 1, block_col + 4); col++)
         {
             if (!tiles_[row][col]->is_fixed())
             {

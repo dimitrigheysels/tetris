@@ -25,7 +25,7 @@ void UI::close()
     window_->close();
 }
 
-bool UI::poll_event(sf::Event &event)
+bool UI::poll_event(sf::Event &event) const
 {
     return window_->pollEvent(event);
 }
@@ -74,7 +74,6 @@ void UI::render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
     {
         for (int col = 0; col < COLS; col++)
         {
-            // tiles_[row][col]->display(this);
             render_tile(row, col, tiles_[row][col]);
         }
     }
@@ -82,8 +81,6 @@ void UI::render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
     auto r = sf::RectangleShape();
     r.setSize(sf::Vector2f(810.0, 1000.0));
 
-    r.setOutlineColor(sf::Color::Blue);
-    r.setOutlineThickness(1);
     r.move(450, 20);
 
     std::stringstream ss;
@@ -111,7 +108,6 @@ void UI::render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
 
     sf::Text t(ss.str(), font, 10);
     t.setPosition(r.getPosition().x + 1, r.getPosition().y + 5);
-
     t.setOutlineThickness(1);
 
     window_->draw(r);

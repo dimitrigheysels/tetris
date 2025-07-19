@@ -21,7 +21,7 @@ public:
     bool is_open();
     void close();
 
-    bool poll_event(sf::Event &event);
+    bool poll_event(sf::Event &event) const;
 
     void render_highscore(int score) const;
     void render_scoreboard(int level, int score, int nr_of_lines) const;

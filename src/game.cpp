@@ -42,10 +42,6 @@ void Game::update(const sf::Event &event)
             {
                 if (event.type == sf::Event::KeyPressed)
                 {
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
-                    {
-                        is_paused_ ^= true;
-                    }
                     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) ||
                         event.key.code == sf::Keyboard::Key::Down)
                     {
