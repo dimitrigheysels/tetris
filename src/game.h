@@ -10,6 +10,9 @@ class UI;
 class Game : public std::enable_shared_from_this<Game>
 {
 private:
+    sf::Clock level_clock_;
+    sf::Clock block_clock_;
+
     bool is_running_;
     bool is_paused_;
     bool is_game_over_;
@@ -38,8 +41,7 @@ public:
 
     bool is_running();
 
-    void update();
-    void update(const sf::Event &event);
+    void update(std::optional<sf::Event> event);
 
     void update_score(int nr_of_full_lines);
     void update_level();

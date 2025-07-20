@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Font.hpp>
 
 #include "field.h"
 
@@ -9,7 +10,7 @@ class UI
 {
 private:
     std::shared_ptr<sf::RenderWindow> window_;
-    sf::Font font;
+    sf::Font font_;
 
 public:
     UI();
@@ -21,7 +22,7 @@ public:
     bool is_open();
     void close();
 
-    bool poll_event(sf::Event &event) const;
+    std::optional<sf::Event> poll_event() const;
 
     void render_highscore(int score) const;
     void render_scoreboard(int level, int score, int nr_of_lines) const;

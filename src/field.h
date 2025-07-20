@@ -19,8 +19,6 @@ private:
 
     std::weak_ptr<Player> player_;
 
-    sf::Font font;
-
     std::shared_ptr<Block> generate_block() const;
     int check_full_lines(int from_row, int *nr_of_full_line) const;
     bool check_full_line(int row) const;

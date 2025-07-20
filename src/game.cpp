@@ -14,75 +14,92 @@ bool Game::is_running()
     return is_running_;
 }
 
-void Game::update()
+void Game::update(std::optional<sf::Event> event)
 {
-    if (!is_game_over_ && !is_paused_)
+    if (event)
     {
-        GameState state = player_->down_block();
-        process_game_state(state);
-    }
-}
-
-void Game::update(const sf::Event &event)
-{
-    if (event.type == sf::Event::Closed ||
-        (event.type == sf::Event::KeyPressed && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)))
-    {
-        is_running_ = false;
-    }
-    else
-    {
-        if (!is_game_over_)
+        if (event->is<sf::Event::Closed>())
         {
-            if (event.type == sf::Event::KeyPressed && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
+            is_running_ = false;
+        }
+        else
+        {
+            const auto e = event->getIf<sf::Event::KeyPressed>();
+            if (e != nullptr)
             {
-                is_paused_ ^= true;
-            }
-            else if (!is_paused_)
-            {
-                if (event.type == sf::Event::KeyPressed)
+                if (e->scancode == sf::Keyboard::Scancode::Escape)
                 {
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) ||
-                        event.key.code == sf::Keyboard::Key::Down)
+                    is_running_ = false;
+                }
+                else if (!is_game_over_)
+                {
+                    if (e->scancode == sf::Keyboard::Scancode::P)
                     {
-                        GameState state = player_->down_block();
-                        process_game_state(state);
+                        is_paused_ ^= true;
                     }
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+                    else if (!is_paused_)
                     {
-                        player_->left_block();
+                        switch (e->scancode)
+                        {
+                        case sf::Keyboard::Scancode::Down:
+                        {
+                            GameState state = player_->down_block();
+                            process_game_state(state);
+                            break;
+                        }
+                        case sf::Keyboard::Scancode::Left:
+                        {
+                            player_->left_block();
+                            break;
+                        }
+                        case sf::Keyboard::Scancode::Right:
+                        {
+                            player_->right_block();
+                            break;
+                        }
+                        case sf::Keyboard::Scancode::Up:
+                        {
+                            player_->up_block();
+                            break;
+                        }
+                        }
                     }
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+                }
+                else // is game over
+                {
+                    switch (e->scancode)
                     {
-                        player_->right_block();
+                    case sf::Keyboard::Scancode::Y:
+                    {
+                        is_game_over_ = false;
+                        score_ = 0;
+                        nr_of_lines_ = 0;
+                        level_ = 1;
+                        player_->start_new_game();
+                        break;
                     }
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+                    case sf::Keyboard::Scancode::N:
                     {
-                        player_->up_block();
+                        is_running_ = false;
+                        break;
+                        // save player data in profile
+                        // ...
+                    }
                     }
                 }
             }
         }
-        else // is game over
+    }
+    else
+    {
+        if (block_clock_.getElapsedTime().asSeconds() >= 0.5f)
         {
-            if (event.type == sf::Event::KeyPressed)
+            if (!is_game_over_ && !is_paused_)
             {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y))
-                {
-                    is_game_over_ = false;
-                    score_ = 0;
-                    nr_of_lines_ = 0;
-                    level_ = 1;
-                    player_->start_new_game();
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N))
-                {
-                    is_running_ = false;
-
-                    // save player data
-                    // ...
-                }
+                GameState state = player_->down_block();
+                process_game_state(state);
             }
+            block_clock_.restart();
         }
     }
 }
@@ -107,13 +124,23 @@ void Game::update_score(int nr_of_full_lines)
     }
 }
 
+void Game::update_level()
+{
+    if (level_ < 9)
+    {
+        if (score_ % 100 == 0)
+        {
+            level_++;
+            std::cout << "level up ! " << level_ << std::endl;
+            level_clock_.restart();
+        }
+    }
+}
+
 void Game::game_over()
 {
     player_->update_highscore(score_);
     is_game_over_ = true;
-
-    // play again window ?
-    // is_running_ = false;
 }
 
 void Game::display(const UI &ui) const
@@ -121,10 +148,8 @@ void Game::display(const UI &ui) const
     if (is_game_over_)
     {
         ui.render_gameover();
-        // display big "GAME OVER" text
-        // as to play again ?
     }
-    else // if not gameover
+    else
     {
         player_->display(ui);
         ui.render_scoreboard(level_, score_, nr_of_lines_);
@@ -142,7 +167,7 @@ void Game::process_game_state(const GameState &state)
     if (state.nr_of_full_lines > 0)
     {
         update_score(state.nr_of_full_lines);
-        // update_level();
+        update_level();
         return;
     }
 }

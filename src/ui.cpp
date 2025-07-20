@@ -6,8 +6,8 @@
 
 UI::UI()
 {
-    window_ = std::make_shared<sf::RenderWindow>(sf::VideoMode(1280, 1024), "MyTetris");
-    font.loadFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
+    window_ = std::make_shared<sf::RenderWindow>(sf::VideoMode({1280, 1024}), "MyTetris");
+    font_.openFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
 }
 
 void UI::clear() const
@@ -25,22 +25,22 @@ void UI::close()
     window_->close();
 }
 
-bool UI::poll_event(sf::Event &event) const
+std::optional<sf::Event> UI::poll_event() const
 {
-    return window_->pollEvent(event);
+    return window_->pollEvent();
 }
 
 void UI::render_highscore(int score) const
 {
     sf::RectangleShape scoreboard(sf::Vector2f(100.0, 100.0));
-    scoreboard.setPosition((COLS * SIZE_TILE) + 50, 200);
+    scoreboard.setPosition({(COLS * SIZE_TILE) + 50, 200});
     scoreboard.setFillColor(sf::Color::White);
 
     std::stringstream ss;
     ss << "player highscore: " << score << std::endl;
 
-    sf::Text score_text(ss.str(), font, 12);
-    score_text.setPosition(scoreboard.getPosition().x + 10, scoreboard.getPosition().y + 10);
+    sf::Text score_text(font_, ss.str(), 12);
+    score_text.setPosition({scoreboard.getPosition().x + 10, scoreboard.getPosition().y + 10});
 
     score_text.setOutlineThickness(1);
 
@@ -51,7 +51,7 @@ void UI::render_highscore(int score) const
 void UI::render_scoreboard(int level, int score, int nr_of_lines) const
 {
     sf::RectangleShape scoreboard(sf::Vector2f(100.0, 100.0));
-    scoreboard.setPosition((COLS * SIZE_TILE) + 50, 350);
+    scoreboard.setPosition({(COLS * SIZE_TILE) + 50, 350});
     scoreboard.setFillColor(sf::Color::White);
 
     std::stringstream ss;
@@ -59,8 +59,8 @@ void UI::render_scoreboard(int level, int score, int nr_of_lines) const
     ss << "nr of lines: " << nr_of_lines << std::endl;
     ss << "score: " << score << std::endl;
 
-    sf::Text score_text(ss.str(), font, 12);
-    score_text.setPosition(scoreboard.getPosition().x + 10, scoreboard.getPosition().y + 10);
+    sf::Text score_text(font_, ss.str(), 12);
+    score_text.setPosition({scoreboard.getPosition().x + 10, scoreboard.getPosition().y + 10});
 
     score_text.setOutlineThickness(1);
 
@@ -78,46 +78,46 @@ void UI::render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
         }
     }
 
-    auto r = sf::RectangleShape();
-    r.setSize(sf::Vector2f(810.0, 1000.0));
+    // auto r = sf::RectangleShape();
+    // r.setSize(sf::Vector2f(810.0, 1000.0));
 
-    r.move(450, 20);
+    // r.move({450, 20});
 
-    std::stringstream ss;
-    for (int i = 0; i < ROWS; i++)
-    {
-        for (int j = 0; j < COLS; j += 4)
-        {
-            ss << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j
-               << " fixed: " << tiles_[i][j]->is_fixed()
-               << " block: " << std::right << std::setw(14) << tiles_[i][j]->get_block()
-               << "\t"
-               << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 1
-               << " fixed: " << tiles_[i][j + 1]->is_fixed()
-               << " block: " << std::right << std::setw(14) << tiles_[i][j + 1]->get_block()
-               << "\t"
-               << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 2
-               << " fixed: " << tiles_[i][j + 2]->is_fixed()
-               << " block: " << std::right << std::setw(14) << tiles_[i][j + 2]->get_block()
-               << "\t"
-               << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 3
-               << " fixed: " << tiles_[i][j + 3]->is_fixed()
-               << " block: " << std::right << std::setw(14) << tiles_[i][j + 3]->get_block() << std::endl;
-        }
-    }
+    // std::stringstream ss;
+    // for (int i = 0; i < ROWS; i++)
+    // {
+    //     for (int j = 0; j < COLS; j += 4)
+    //     {
+    //         ss << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j
+    //            << " fixed: " << tiles_[i][j]->is_fixed()
+    //            << " block: " << std::right << std::setw(14) << tiles_[i][j]->get_block()
+    //            << "\t"
+    //            << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 1
+    //            << " fixed: " << tiles_[i][j + 1]->is_fixed()
+    //            << " block: " << std::right << std::setw(14) << tiles_[i][j + 1]->get_block()
+    //            << "\t"
+    //            << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 2
+    //            << " fixed: " << tiles_[i][j + 2]->is_fixed()
+    //            << " block: " << std::right << std::setw(14) << tiles_[i][j + 2]->get_block()
+    //            << "\t"
+    //            << std::right << std::setw(2) << i << "@" << std::left << std::setw(2) << j + 3
+    //            << " fixed: " << tiles_[i][j + 3]->is_fixed()
+    //            << " block: " << std::right << std::setw(14) << tiles_[i][j + 3]->get_block() << std::endl;
+    //     }
+    // }
 
-    sf::Text t(ss.str(), font, 10);
-    t.setPosition(r.getPosition().x + 1, r.getPosition().y + 5);
-    t.setOutlineThickness(1);
+    // sf::Text t(font_, ss.str(), 10);
+    // t.setPosition({r.getPosition().x + 1, r.getPosition().y + 5});
+    // t.setOutlineThickness(1);
 
-    window_->draw(r);
-    window_->draw(t);
+    // window_->draw(r);
+    //  window_->draw(t);
 }
 
 void UI::render_tile(int r, int c, const std::shared_ptr<Tile> tile) const
 {
     sf::RectangleShape shape = sf::RectangleShape(sf::Vector2f(SIZE_TILE, SIZE_TILE));
-    shape.setPosition(c * SIZE_TILE, r * SIZE_TILE);
+    shape.setPosition({c * SIZE_TILE, r * SIZE_TILE});
     shape.setOutlineColor(sf::Color::Black);
     shape.setOutlineThickness(-1.0f);
 
@@ -148,7 +148,7 @@ void UI::render_next(const Block &block) const
             if (layout[row][col])
             {
                 auto shape = sf::RectangleShape(sf::Vector2f(SIZE_TILE, SIZE_TILE));
-                shape.setPosition(X_NEXT_BLOCK + (col * SIZE_TILE), Y_NEXT_BLOCK + (row * SIZE_TILE));
+                shape.setPosition({X_NEXT_BLOCK + (col * SIZE_TILE), Y_NEXT_BLOCK + (row * SIZE_TILE)});
                 shape.setOutlineColor(sf::Color::Black);
                 shape.setOutlineThickness(-1.0f);
                 shape.setFillColor(block.get_color());
@@ -161,13 +161,13 @@ void UI::render_next(const Block &block) const
 
 void UI::render_gameover() const
 {
-    sf::Text gameover_text("G A M E     O V E R\nnew game (y/n)", font, 30);
+    sf::Text gameover_text(font_, "G A M E     O V E R\nnew game (y/n)", 30);
 
-    int gameover_textwidth = gameover_text.getLocalBounds().width;
-    int gameover_textheight = gameover_text.getLocalBounds().height;
+    int gameover_textwidth = gameover_text.getLocalBounds().size.x;
+    int gameover_textheight = gameover_text.getLocalBounds().size.y;
 
-    gameover_text.setPosition((window_->getSize().x - gameover_textwidth) / 2,
-                              (window_->getSize().y - gameover_textheight) / 2);
+    gameover_text.setPosition({(window_->getSize().x - gameover_textwidth) / 2.0f,
+                               (window_->getSize().y - gameover_textheight) / 2.0f});
     gameover_text.setOutlineThickness(3);
 
     window_->draw(gameover_text);

@@ -9,8 +9,6 @@
 
 Field::Field()
 {
-    font.loadFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
-
     for (int row = 0; row < ROWS; row++)
     {
         for (int col = 0; col < COLS; col++)
