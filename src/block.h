@@ -1,15 +1,16 @@
 #pragma once
 
+#include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
 #include <optional>
 #include <experimental/random>
 
-#include "field.h"
-#include "tile.h"
 #include "global.h"
 
 typedef bool layout_t[4][4];
+
+class Tile;
 
 class Block : public std::enable_shared_from_this<Block>
 {
@@ -57,8 +58,6 @@ public:
         return position_row_;
     }
     inline int get_position_col() { return position_col_; }
-
-    // void display(sf::RenderWindow &w) const;
 };
 
 class I_Block : public Block

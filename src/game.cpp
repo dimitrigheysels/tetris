@@ -2,16 +2,25 @@
 
 #include "game.h"
 #include "global.h"
-#include "ui.h"
 
-Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), level_(1)
+Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0)
 {
-    player_ = std::make_shared<Player>();
+    level_ = std::make_shared<Level_1>();
+    player_ = std::make_shared<PlayerProfile>();
+    field_ = std::make_shared<Field>();
+    field_->add_new_block();
 }
 
 bool Game::is_running()
 {
     return is_running_;
+}
+
+void Game::start_new_game()
+{
+    level_ = std::make_shared<Level_1>();
+    field_ = std::make_shared<Field>();
+    field_->add_new_block();
 }
 
 void Game::update(std::optional<sf::Event> event)
@@ -43,23 +52,24 @@ void Game::update(std::optional<sf::Event> event)
                         {
                         case sf::Keyboard::Scancode::Down:
                         {
-                            GameState state = player_->down_block();
+                            // GameState state = player_->down_block();
+                            GameState state = field_->down_block();
                             process_game_state(state);
                             break;
                         }
                         case sf::Keyboard::Scancode::Left:
                         {
-                            player_->left_block();
+                            field_->left_block();
                             break;
                         }
                         case sf::Keyboard::Scancode::Right:
                         {
-                            player_->right_block();
+                            field_->right_block();
                             break;
                         }
                         case sf::Keyboard::Scancode::Up:
                         {
-                            player_->up_block();
+                            field_->up_block();
                             break;
                         }
                         }
@@ -74,8 +84,8 @@ void Game::update(std::optional<sf::Event> event)
                         is_game_over_ = false;
                         score_ = 0;
                         nr_of_lines_ = 0;
-                        level_ = 1;
-                        player_->start_new_game();
+
+                        start_new_game();
                         break;
                     }
                     case sf::Keyboard::Scancode::N:
@@ -96,11 +106,17 @@ void Game::update(std::optional<sf::Event> event)
         {
             if (!is_game_over_ && !is_paused_)
             {
-                GameState state = player_->down_block();
+                GameState state = field_->down_block();
                 process_game_state(state);
             }
             block_clock_.restart();
         }
+    }
+
+    if (level_clock_.getElapsedTime().asSeconds() >= 30.0f)
+    {
+        // level->do_something_with_field(field_)
+        level_clock_.restart();
     }
 }
 
@@ -126,15 +142,16 @@ void Game::update_score(int nr_of_full_lines)
 
 void Game::update_level()
 {
-    if (level_ < 9)
+    // if (level_ < 9)
+    // {
+    if (score_ % 100 == 0)
     {
-        if (score_ % 100 == 0)
-        {
-            level_++;
-            std::cout << "level up ! " << level_ << std::endl;
-            level_clock_.restart();
-        }
+        // level_++;
+        level_ = level_->next_level();
+        std::cout << "level up ! " << level_ << std::endl;
+        level_clock_.restart();
     }
+    // }
 }
 
 void Game::game_over()
@@ -151,8 +168,9 @@ void Game::display(const UI &ui) const
     }
     else
     {
+        field_->display(ui);
         player_->display(ui);
-        ui.render_scoreboard(level_, score_, nr_of_lines_);
+        ui.render_scoreboard(level_->get_number(), score_, nr_of_lines_);
     }
 }
 

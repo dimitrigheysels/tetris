@@ -4,7 +4,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Font.hpp>
 
-#include "field.h"
+#include "global.h"
+#include "tile.h"
+#include "block.h"
 
 class UI
 {

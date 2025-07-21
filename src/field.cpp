@@ -5,7 +5,6 @@
 
 #include "field.h"
 #include "ui.h"
-#include "player.h"
 
 Field::Field()
 {

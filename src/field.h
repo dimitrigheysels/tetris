@@ -2,12 +2,12 @@
 
 #include <SFML/Graphics.hpp>
 #include <memory>
+
 #include "block.h"
 #include "tile.h"
 #include "global.h"
 
 class UI;
-class Player;
 
 class Field
 {
@@ -16,8 +16,6 @@ private:
 
     std::shared_ptr<Block> next_block_;
     std::shared_ptr<Block> current_block_;
-
-    std::weak_ptr<Player> player_;
 
     std::shared_ptr<Block> generate_block() const;
     int check_full_lines(int from_row, int *nr_of_full_line) const;

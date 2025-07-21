@@ -10,6 +10,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 add_compile_options(-g -rdynamic)
 
-add_executable(MyTetris src/main.cpp src/ui.cpp src/game.cpp src/player.cpp src/field.cpp src/tile.cpp src/block.cpp)
+add_executable(MyTetris src/main.cpp src/ui.cpp src/game.cpp src/player_profile.cpp src/field.cpp src/tile.cpp src/block.cpp src/level.cpp)
 
 target_link_libraries(MyTetris PRIVATE SFML::Graphics SFML::Window SFML::System SFML::Audio)
