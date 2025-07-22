@@ -11,7 +11,7 @@ constexpr int COLS = 10 + 1 + 1; // 1 boundary at the left, 10 playfield, 1 boun
 
 constexpr float SIZE_TILE = 20.0f;
 constexpr int X_NEXT_BLOCK = (COLS * SIZE_TILE) + 50;
-constexpr int Y_NEXT_BLOCK = 60;
+constexpr int Y_NEXT_BLOCK = 40;
 
 constexpr int BLOCK_LAYOUT_SIZE = 4;
 
@@ -19,4 +19,5 @@ struct GameState
 {
     bool game_over{false};
     int nr_of_full_lines{0};
+    bool new_block{false};
 };

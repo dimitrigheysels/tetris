@@ -25,6 +25,9 @@ private:
     int nr_of_lines_;
 
     std::shared_ptr<Level> level_;
+    int level_event_countdown_;
+
+    int next_nr_of_lines_bonus_;
 
     void process_game_state(const GameState &state);
 

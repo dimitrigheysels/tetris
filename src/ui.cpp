@@ -33,7 +33,7 @@ std::optional<sf::Event> UI::poll_event() const
 void UI::render_highscore(int score) const
 {
     sf::RectangleShape scoreboard(sf::Vector2f(200.0, 100.0));
-    scoreboard.setPosition({(COLS * SIZE_TILE) + 50, 200});
+    scoreboard.setPosition({(COLS * SIZE_TILE) + 50, 120 + (2 * SIZE_TILE)});
     scoreboard.setFillColor(sf::Color(64, 64, 64));
 
     std::stringstream ss;
@@ -51,7 +51,7 @@ void UI::render_highscore(int score) const
 void UI::render_scoreboard(int level, int score, int nr_of_lines) const
 {
     sf::RectangleShape scoreboard(sf::Vector2f(200.0, 100.0));
-    scoreboard.setPosition({(COLS * SIZE_TILE) + 50, 350});
+    scoreboard.setPosition({(COLS * SIZE_TILE) + 50, 260 + (2 * SIZE_TILE)});
     scoreboard.setFillColor(sf::Color(64, 64, 64));
 
     std::stringstream ss;
@@ -60,12 +60,36 @@ void UI::render_scoreboard(int level, int score, int nr_of_lines) const
     ss << "score: " << score << std::endl;
 
     sf::Text score_text(font_, ss.str(), 12);
+
     score_text.setPosition({scoreboard.getPosition().x + 10, scoreboard.getPosition().y + 10});
 
     score_text.setOutlineThickness(1);
 
     window_->draw(scoreboard);
     window_->draw(score_text);
+}
+
+void UI::render_level_countdown(int level_timer_elapsed_seconds, int level_event_countdown) const
+{
+    sf::RectangleShape countdown_timer(sf::Vector2f(200.0, 100.0));
+    countdown_timer.setPosition({(COLS * SIZE_TILE) + 50, 400 + (2 * SIZE_TILE)});
+    countdown_timer.setFillColor(sf::Color(64, 64, 64));
+
+    std::stringstream ss;
+    ss << std::max(0, level_event_countdown - level_timer_elapsed_seconds);
+
+    sf::Text countdown_text(font_, ss.str(), 32);
+    int countdown_textwidth = countdown_text.getLocalBounds().size.x;
+    int countdown_textheight = countdown_text.getLocalBounds().size.y;
+
+    // countdown_text.setPosition({countdown_timer.getPosition().x + 10, countdown_timer.getPosition().y + 10});
+    countdown_text.setPosition({countdown_timer.getPosition().x + ((countdown_timer.getSize().x - countdown_textwidth) / 2.0f),
+                                countdown_timer.getPosition().y + ((countdown_timer.getSize().y - countdown_textheight) / 2.0f)});
+
+    countdown_text.setOutlineThickness(2);
+
+    window_->draw(countdown_timer);
+    window_->draw(countdown_text);
 }
 
 void UI::render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const

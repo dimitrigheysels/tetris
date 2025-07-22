@@ -5,6 +5,7 @@
 #include "block.h"
 #include "tile.h"
 #include "global.h"
+#include "level.h"
 
 class UI;
 

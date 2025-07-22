@@ -3,7 +3,7 @@
 #include "game.h"
 #include "global.h"
 
-Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0)
+Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(100)
 {
     player_ = std::make_shared<PlayerProfile>();
     player_->load();
@@ -22,7 +22,8 @@ void Game::start_new_game()
     score_ = 0;
     nr_of_lines_ = 0;
 
-    level_ = std::make_shared<Level_1>();
+    level_ = std::make_shared<Level_2>();
+    level_event_countdown_ = level_->event_countdown_in_seconds();
     field_ = std::make_shared<Field>();
     field_->add_new_block();
 }
@@ -113,12 +114,6 @@ void Game::update(std::optional<sf::Event> event)
             block_clock_.restart();
         }
     }
-
-    if (level_clock_.getElapsedTime().asSeconds() >= std::experimental::randint(30, 45))
-    {
-        level_->do_something_with_field(field_);
-        level_clock_.restart();
-    }
 }
 
 void Game::update_score(int nr_of_full_lines)
@@ -146,6 +141,7 @@ void Game::update_level()
     if ((level_->get_number() < 4) && (score_ / 100.0f >= level_->get_number()))
     {
         level_ = level_->next_level();
+        level_event_countdown_ = level_->event_countdown_in_seconds();
         level_clock_.restart();
     }
 }
@@ -167,6 +163,10 @@ void Game::display(const UI &ui) const
         field_->display(ui);
         player_->display(ui);
         ui.render_scoreboard(level_->get_number(), score_, nr_of_lines_);
+        if (level_event_countdown_)
+        {
+            ui.render_level_countdown(level_clock_.getElapsedTime().asSeconds(), level_event_countdown_);
+        }
     }
 }
 
@@ -178,13 +178,27 @@ void Game::process_game_state(const GameState &state)
         return;
     }
 
+    if (state.new_block)
+    {
+        // field should only be changed (according to level) when new block is created
+        if (level_event_countdown_ > 0 && level_clock_.getElapsedTime().asSeconds() >= level_event_countdown_)
+        {
+            // calculate next interval and show the clock
+            level_event_countdown_ = level_->event_countdown_in_seconds();
+            level_->do_something_with_field(field_);
+            level_clock_.restart();
+        }
+    }
+
     if (state.nr_of_full_lines > 0)
     {
         update_score(state.nr_of_full_lines);
-        // if score >= every 500 points --> clear 5 lines (but do not clear whole field)
-        if (score_ > 9 && score_ % 500 < 9)
+        // each 100 lines --> clear 4 lines (but do not clear whole field)
+        if (nr_of_lines_ > next_nr_of_lines_bonus_)
         {
-            field_->clear_lines(5);
+            std::cout << "BONUS lines" << std::endl;
+            field_->clear_lines(4);
+            next_nr_of_lines_bonus_ += 100;
         }
         update_level();
         return;

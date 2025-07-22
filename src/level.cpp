@@ -24,6 +24,11 @@ float Level_1::speed() const
     return 0.5f;
 }
 
+int Level_1::event_countdown_in_seconds() const
+{
+    0;
+}
+
 // ========= LEVEL 2 =========
 // ===========================
 int Level_2::get_number() const
@@ -52,6 +57,11 @@ void Level_2::do_something_with_field(const std::shared_ptr<Field> field) const
 float Level_2::speed() const
 {
     return 0.5f;
+}
+
+int Level_2::event_countdown_in_seconds() const
+{
+    return std::experimental::randint(10, 30);
 }
 
 // ========= LEVEL 3 =========
@@ -84,6 +94,11 @@ float Level_3::speed() const
     return 0.5f;
 }
 
+int Level_3::event_countdown_in_seconds() const
+{
+    return std::experimental::randint(15, 35);
+}
+
 // ========= LEVEL 4 =========
 // ===========================
 int Level_4::get_number() const
@@ -113,4 +128,9 @@ void Level_4::do_something_with_field(const std::shared_ptr<Field> field) const
 float Level_4::speed() const
 {
     return 0.5f;
+}
+
+int Level_4::event_countdown_in_seconds() const
+{
+    return std::experimental::randint(20, 40);
 }

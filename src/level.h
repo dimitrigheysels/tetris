@@ -25,6 +25,7 @@ public:
     virtual std::shared_ptr<Level> next_level() const = 0;
     virtual void do_something_with_field(const std::shared_ptr<Field> field) const = 0;
     virtual float speed() const = 0;
+    virtual int event_countdown_in_seconds() const = 0;
 };
 
 class Level_1 : public Level
@@ -37,6 +38,7 @@ public:
     std::shared_ptr<Level> next_level() const override;
     void do_something_with_field(const std::shared_ptr<Field> field) const override;
     float speed() const override;
+    int event_countdown_in_seconds() const override;
 };
 
 class Level_2 : public Level
@@ -49,6 +51,7 @@ public:
     std::shared_ptr<Level> next_level() const override;
     void do_something_with_field(const std::shared_ptr<Field> field) const override;
     float speed() const override;
+    int event_countdown_in_seconds() const override;
 };
 
 class Level_3 : public Level
@@ -61,6 +64,7 @@ public:
     std::shared_ptr<Level> next_level() const override;
     void do_something_with_field(const std::shared_ptr<Field> field) const override;
     float speed() const override;
+    int event_countdown_in_seconds() const override;
 };
 
 class Level_4 : public Level
@@ -73,4 +77,5 @@ public:
     std::shared_ptr<Level> next_level() const override;
     void do_something_with_field(const std::shared_ptr<Field> field) const override;
     float speed() const override;
+    int event_countdown_in_seconds() const override;
 };

@@ -155,12 +155,10 @@ GameState Field::down_block()
         top_row_ = std::min(top_row_, current_block_->get_top_boundary());
         top_row_ += nr_of_full_lines;
 
-        // if top_row_ == ROWS-1 (field completely cleared)
-        //  --> points += 100
-
         // show next block
         add_new_block();
 
+        state.new_block = true;
         state.nr_of_full_lines = nr_of_full_lines;
     }
 
@@ -234,7 +232,7 @@ void Field::add_scattered_rows(int from_row, int to_row)
 {
     std::cout << "add_scattered_rows - from_row: " << from_row << " to_row: " << to_row << std::endl;
     auto dot_block = std::make_shared<DOT_Block>();
-    for (int r = from_row; r > std::min(PLAYFIELD_TOP_ROW, to_row); r--)
+    for (int r = from_row; r > std::max(PLAYFIELD_TOP_ROW, to_row); r--)
     {
         for (int c = PLAYFIELD_FIRST_COL; c < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; c++)
         {

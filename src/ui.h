@@ -28,6 +28,7 @@ public:
 
     void render_highscore(int score) const;
     void render_scoreboard(int level, int score, int nr_of_lines) const;
+    void render_level_countdown(int level_clock_elapsed_seconds, int level_event_countdown) const;
     void render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const;
     void render_tile(int r, int c, const std::shared_ptr<Tile> tile) const;
     void render_next(const Block &block) const;
