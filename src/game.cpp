@@ -3,7 +3,7 @@
 #include "game.h"
 #include "global.h"
 
-Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(100)
+Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
 {
     player_ = std::make_shared<PlayerProfile>();
     player_->load();
@@ -163,7 +163,7 @@ void Game::display(const UI &ui) const
         field_->display(ui);
         player_->display(ui);
         ui.render_scoreboard(level_->get_number(), score_, nr_of_lines_);
-        if (level_event_countdown_)
+        if (level_event_countdown_ > 0)
         {
             ui.render_level_countdown(level_clock_.getElapsedTime().asSeconds(), level_event_countdown_);
         }
