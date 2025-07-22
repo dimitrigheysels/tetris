@@ -210,7 +210,7 @@ void Field::clear_lines(int nr_of_lines)
             }
         }
 
-        top_row_ -= nr_of_lines;
+        top_row_ += nr_of_lines;
     }
 }
 
