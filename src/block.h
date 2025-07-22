@@ -8,7 +8,7 @@
 
 #include "global.h"
 
-typedef bool layout_t[4][4];
+typedef bool layout_t[BLOCK_LAYOUT_SIZE][BLOCK_LAYOUT_SIZE];
 
 class Tile;
 
@@ -50,6 +50,7 @@ public:
     std::optional<int> get_bottom_boundary(int col) const;
     std::optional<int> get_left_boundary(int row) const;
     std::optional<int> get_right_boundary(int row) const;
+    int get_top_boundary() const;
 
     void set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]);
 
@@ -296,6 +297,41 @@ public:
     }
 
     ~O_Block() {}
+
+    const layout_t &get_current_layout() const override;
+    const layout_t &get_layout_after_rotation() const override;
+    sf::Color get_color() const override;
+};
+
+class DOT_Block : public Block
+{
+private:
+    static constexpr layout_t LAYOUTS[4] = {{{true, false, false, false},   // |P| | | |
+                                             {false, false, false, false},  // | | | | |
+                                             {false, false, false, false},  // | | | | |
+                                             {false, false, false, false}}, // | | | | |
+
+                                            {{true, false, false, false},   // |P| | | |
+                                             {false, false, false, false},  // | | | | |
+                                             {false, false, false, false},  // | | | | |
+                                             {false, false, false, false}}, // | | | | |
+
+                                            {{true, false, false, false},   // |P| | | |
+                                             {false, false, false, false},  // | | | | |
+                                             {false, false, false, false},  // | | | | |
+                                             {false, false, false, false}}, // | | | | |
+
+                                            {{true, false, false, false},    // |P| | | |
+                                             {false, false, false, false},   // | | | | |
+                                             {false, false, false, false},   // | | | | |
+                                             {false, false, false, false}}}; // | | | | |
+
+public:
+    explicit DOT_Block() : Block()
+    {
+    }
+
+    ~DOT_Block() {}
 
     const layout_t &get_current_layout() const override;
     const layout_t &get_layout_after_rotation() const override;

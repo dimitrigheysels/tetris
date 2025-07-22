@@ -5,19 +5,23 @@
 
 Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0)
 {
-    level_ = std::make_shared<Level_1>();
     player_ = std::make_shared<PlayerProfile>();
-    field_ = std::make_shared<Field>();
-    field_->add_new_block();
+    player_->load();
+
+    start_new_game();
 }
 
-bool Game::is_running()
+bool Game::is_running() const
 {
     return is_running_;
 }
 
 void Game::start_new_game()
 {
+    is_game_over_ = false;
+    score_ = 0;
+    nr_of_lines_ = 0;
+
     level_ = std::make_shared<Level_1>();
     field_ = std::make_shared<Field>();
     field_->add_new_block();
@@ -45,6 +49,8 @@ void Game::update(std::optional<sf::Event> event)
                     if (e->scancode == sf::Keyboard::Scancode::P)
                     {
                         is_paused_ ^= true;
+                        block_clock_.isRunning() ? block_clock_.stop() : block_clock_.start();
+                        level_clock_.isRunning() ? level_clock_.stop() : level_clock_.start();
                     }
                     else if (!is_paused_)
                     {
@@ -81,19 +87,14 @@ void Game::update(std::optional<sf::Event> event)
                     {
                     case sf::Keyboard::Scancode::Y:
                     {
-                        is_game_over_ = false;
-                        score_ = 0;
-                        nr_of_lines_ = 0;
-
                         start_new_game();
                         break;
                     }
                     case sf::Keyboard::Scancode::N:
                     {
                         is_running_ = false;
+                        player_->save();
                         break;
-                        // save player data in profile
-                        // ...
                     }
                     }
                 }
@@ -102,7 +103,7 @@ void Game::update(std::optional<sf::Event> event)
     }
     else
     {
-        if (block_clock_.getElapsedTime().asSeconds() >= 0.5f)
+        if (block_clock_.getElapsedTime().asSeconds() >= level_->speed())
         {
             if (!is_game_over_ && !is_paused_)
             {
@@ -113,9 +114,9 @@ void Game::update(std::optional<sf::Event> event)
         }
     }
 
-    if (level_clock_.getElapsedTime().asSeconds() >= 30.0f)
+    if (level_clock_.getElapsedTime().asSeconds() >= std::experimental::randint(30, 45))
     {
-        // level->do_something_with_field(field_)
+        level_->do_something_with_field(field_);
         level_clock_.restart();
     }
 }
@@ -142,16 +143,11 @@ void Game::update_score(int nr_of_full_lines)
 
 void Game::update_level()
 {
-    // if (level_ < 9)
-    // {
-    if (score_ % 100 == 0)
+    if ((level_->get_number() < 4) && (score_ / 100.0f >= level_->get_number()))
     {
-        // level_++;
         level_ = level_->next_level();
-        std::cout << "level up ! " << level_ << std::endl;
         level_clock_.restart();
     }
-    // }
 }
 
 void Game::game_over()
@@ -185,6 +181,11 @@ void Game::process_game_state(const GameState &state)
     if (state.nr_of_full_lines > 0)
     {
         update_score(state.nr_of_full_lines);
+        // if score >= every 500 points --> clear 5 lines (but do not clear whole field)
+        if (score_ > 9 && score_ % 500 < 9)
+        {
+            field_->clear_lines(5);
+        }
         update_level();
         return;
     }

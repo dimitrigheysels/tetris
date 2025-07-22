@@ -1,12 +1,13 @@
+#include <experimental/random>
+
 #include "block.h"
 #include "tile.h"
 
 void Block::set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS])
 {
-
-    for (int row = position_row_; row < position_row_ + 4; row++)
+    for (int row = position_row_; row < position_row_ + BLOCK_LAYOUT_SIZE; row++)
     {
-        for (int col = position_col_; col < position_col_ + 4; col++)
+        for (int col = position_col_; col < position_col_ + BLOCK_LAYOUT_SIZE; col++)
         {
             if (get_current_layout()[row - position_row_][col - position_col_])
             {
@@ -18,7 +19,7 @@ void Block::set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]
 
 std::optional<int> Block::get_bottom_boundary(int col) const
 {
-    for (int i = 3; i >= 0; i--)
+    for (int i = BLOCK_LAYOUT_SIZE - 1; i >= 0; i--)
     {
         if (get_current_layout()[i][col])
         {
@@ -32,7 +33,7 @@ std::optional<int> Block::get_bottom_boundary(int col) const
 /// Returns column-index of left-boundary of block for 'row'
 std::optional<int> Block::get_left_boundary(int row) const
 {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < BLOCK_LAYOUT_SIZE; i++)
     {
         if (get_current_layout()[row][i])
         {
@@ -46,7 +47,7 @@ std::optional<int> Block::get_left_boundary(int row) const
 /// Returns column-index of right-boundary of block for 'row'
 std::optional<int> Block::get_right_boundary(int row) const
 {
-    for (int i = 3; i >= 0; i--)
+    for (int i = BLOCK_LAYOUT_SIZE - 1; i >= 0; i--)
     {
         if (get_current_layout()[row][i])
         {
@@ -57,9 +58,25 @@ std::optional<int> Block::get_right_boundary(int row) const
     return std::nullopt;
 }
 
+int Block::get_top_boundary() const
+{
+    for (int row = position_row_; row < position_row_ + BLOCK_LAYOUT_SIZE; row++)
+    {
+        for (int col = 0; col < BLOCK_LAYOUT_SIZE; col++)
+        {
+            if (get_current_layout()[row - position_row_][col])
+            {
+                return row;
+            }
+        }
+    }
+
+    return position_row_;
+}
+
 bool Block::can_down(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
 {
-    for (int col = position_col_; col < position_col_ + 4; col++)
+    for (int col = position_col_; col < position_col_ + BLOCK_LAYOUT_SIZE; col++)
     {
         auto bottom_boundary = get_bottom_boundary(col - position_col_);
         if (bottom_boundary && !tiles_[position_row_ + bottom_boundary.value() + 1][col]->is_free())
@@ -78,7 +95,7 @@ void Block::down()
 
 bool Block::can_left(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
 {
-    for (int row = position_row_; row < position_row_ + 4; row++)
+    for (int row = position_row_; row < position_row_ + BLOCK_LAYOUT_SIZE; row++)
     {
         auto left_boundary = get_left_boundary(row - position_row_);
         if (left_boundary && !tiles_[row][position_col_ + left_boundary.value() - 1]->is_free())
@@ -97,7 +114,7 @@ void Block::left()
 
 bool Block::can_right(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
 {
-    for (int row = position_row_; row < position_row_ + 4; row++)
+    for (int row = position_row_; row < position_row_ + BLOCK_LAYOUT_SIZE; row++)
     {
         auto right_boundary = get_right_boundary(row - position_row_);
         if (right_boundary && !tiles_[row][position_col_ + right_boundary.value() + 1]->is_free())
@@ -118,9 +135,9 @@ bool Block::can_rotate(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
 {
     auto rot_layout = get_layout_after_rotation();
 
-    for (int row = position_row_; row < position_row_ + 4; row++)
+    for (int row = position_row_; row < position_row_ + BLOCK_LAYOUT_SIZE; row++)
     {
-        for (int col = position_col_; col < position_col_ + 4; col++)
+        for (int col = position_col_; col < position_col_ + BLOCK_LAYOUT_SIZE; col++)
         {
             if (rot_layout[row - position_row_][col - position_col_])
             {
@@ -140,6 +157,8 @@ void Block::rotate()
     layout_index_ = (layout_index_ + 1) % 4;
 }
 
+// ========= 'I' BLOCK =========
+// =============================
 const layout_t &I_Block::get_current_layout() const
 {
     return LAYOUTS[layout_index_];
@@ -155,6 +174,8 @@ sf::Color I_Block::get_color() const
     return sf::Color::Red;
 }
 
+// ========= 'S' BLOCK =========
+// =============================
 const layout_t &S_Block::get_current_layout() const
 {
     return LAYOUTS[layout_index_];
@@ -170,6 +191,8 @@ sf::Color S_Block::get_color() const
     return sf::Color::Cyan;
 }
 
+// ========= 'Z' BLOCK =========
+// =============================
 const layout_t &Z_Block::get_current_layout() const
 {
     return LAYOUTS[layout_index_];
@@ -185,6 +208,8 @@ sf::Color Z_Block::get_color() const
     return sf::Color::Green;
 }
 
+// ========= 'T' BLOCK =========
+// =============================
 const layout_t &T_Block::get_current_layout() const
 {
     return LAYOUTS[layout_index_];
@@ -200,6 +225,8 @@ sf::Color T_Block::get_color() const
     return sf::Color::Blue;
 }
 
+// ========= 'L' BLOCK =========
+// =============================
 const layout_t &L_Block::get_current_layout() const
 {
     return LAYOUTS[layout_index_];
@@ -215,6 +242,8 @@ sf::Color L_Block::get_color() const
     return sf::Color::Yellow;
 }
 
+// ========= 'J' BLOCK =========
+// =============================
 const layout_t &J_Block::get_current_layout() const
 {
     return LAYOUTS[layout_index_];
@@ -230,6 +259,8 @@ sf::Color J_Block::get_color() const
     return sf::Color::Magenta;
 }
 
+// ========= 'O' BLOCK =========
+// =============================
 const layout_t &O_Block::get_current_layout() const
 {
     return LAYOUTS[layout_index_];
@@ -243,4 +274,21 @@ const layout_t &O_Block::get_layout_after_rotation() const
 sf::Color O_Block::get_color() const
 {
     return sf::Color::White;
+}
+
+// ========= '.' BLOCK =========
+// =============================
+const layout_t &DOT_Block::get_current_layout() const
+{
+    return LAYOUTS[layout_index_];
+}
+
+const layout_t &DOT_Block::get_layout_after_rotation() const
+{
+    return LAYOUTS[layout_index_ + 1 % 4];
+}
+
+sf::Color DOT_Block::get_color() const
+{
+    return sf::Color(99, 99, 99);
 }

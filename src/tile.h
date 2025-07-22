@@ -1,6 +1,5 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
 #include <memory>
 #include <optional>
 
@@ -13,6 +12,7 @@ private:
     int c_;
 
     std::shared_ptr<Block> block_;
+    std::shared_ptr<Block> backup_block_;
 
     bool is_boundary_{false};
     bool is_fixed_{false};
@@ -36,4 +36,6 @@ public:
     bool is_free() const;
 
     void update(const std::shared_ptr<Block> block);
+
+    void toggle();
 };

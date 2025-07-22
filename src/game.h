@@ -31,7 +31,7 @@ private:
 public:
     Game();
 
-    bool is_running();
+    bool is_running() const;
 
     void start_new_game();
 

@@ -1,12 +1,11 @@
 
 #include <experimental/random>
-#include <sstream>
-#include <iomanip>
+#include <iostream>
 
 #include "field.h"
 #include "ui.h"
 
-Field::Field()
+Field::Field() : top_row_(PLAYFIELD_BOTTOM_ROW)
 {
     for (int row = 0; row < ROWS; row++)
     {
@@ -22,10 +21,16 @@ Field::Field()
         tiles_[row][0]->set_boundary(true);
         tiles_[row][COLS - 1]->set_boundary(true);
     }
+
     for (int col = 0; col < COLS; col++)
     {
         tiles_[ROWS - 1][col]->set_boundary(true);
     }
+}
+
+int Field::get_top_row() const
+{
+    return top_row_;
 }
 
 void Field::add_new_block()
@@ -50,9 +55,9 @@ void Field::update_tiles()
     auto block_col = current_block_->get_position_col();
 
     // clear the old 4 tiles above
-    if (block_row > 0)
+    if (block_row >= PLAYFIELD_TOP_ROW)
     {
-        for (int col = block_col; col < std::min(COLS - 1, block_col + 4); col++)
+        for (int col = block_col; col < std::min(PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH, block_col + BLOCK_LAYOUT_SIZE); col++)
         {
             if (!tiles_[block_row - 1][col]->is_fixed())
             {
@@ -62,9 +67,9 @@ void Field::update_tiles()
     }
 
     // clear old 4 tiles left
-    if (block_col > 1) // do not clear boundary of field
+    if (block_col > PLAYFIELD_FIRST_COL) // do not clear boundary of field
     {
-        for (int row = block_row; row < std::min(ROWS - 1, block_row + 4); row++)
+        for (int row = block_row; row < std::min(PLAYFIELD_TOP_ROW + PLAYFIELD_HEIGHT, block_row + BLOCK_LAYOUT_SIZE); row++)
         {
             if (!tiles_[row][block_col - 1]->is_fixed())
             {
@@ -74,20 +79,20 @@ void Field::update_tiles()
     }
 
     // clear old 4 tiles right
-    if (block_col < COLS - 1 - 4) // do not clear boundary of field
+    if (block_col < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH - BLOCK_LAYOUT_SIZE) // do not clear boundary of field
     {
-        for (int row = block_row; row < std::min(ROWS - 1, block_row + 4); row++)
+        for (int row = block_row; row < std::min(PLAYFIELD_TOP_ROW + PLAYFIELD_HEIGHT, block_row + BLOCK_LAYOUT_SIZE); row++)
         {
-            if (!tiles_[row][block_col + 3 + 1]->is_fixed())
+            if (!tiles_[row][block_col + BLOCK_LAYOUT_SIZE]->is_fixed())
             {
-                tiles_[row][block_col + 3 + 1]->unset_block();
+                tiles_[row][block_col + BLOCK_LAYOUT_SIZE]->unset_block();
             }
         }
     }
 
-    for (int row = block_row; row < std::min(ROWS - 1, block_row + 4); row++)
+    for (int row = block_row; row < std::min(PLAYFIELD_TOP_ROW + PLAYFIELD_HEIGHT, block_row + BLOCK_LAYOUT_SIZE); row++)
     {
-        for (int col = block_col; col < std::min(COLS - 1, block_col + 4); col++)
+        for (int col = block_col; col < std::min(PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH, block_col + BLOCK_LAYOUT_SIZE); col++)
         {
             if (!tiles_[row][col]->is_fixed())
             {
@@ -109,7 +114,7 @@ GameState Field::down_block()
     {
         // check for gameover
         int r = current_block_->get_position_row();
-        if (r <= 1)
+        if (r == PLAYFIELD_TOP_ROW)
         {
             state.game_over = true;
             return state;
@@ -119,7 +124,7 @@ GameState Field::down_block()
 
         // process full lines...
         int nr_of_full_lines = 0;
-        int full_line_indexes[4] = {0};
+        int full_line_indexes[BLOCK_LAYOUT_SIZE] = {0};
         nr_of_full_lines = check_full_lines(r, full_line_indexes);
 
         // ...  and move tiles down
@@ -129,9 +134,9 @@ GameState Field::down_block()
             {
                 // start on row with full line
                 // stop on row 1 (row 0 is hidden)
-                for (int row = row_index; row >= 1; row--)
+                for (int row = row_index; row >= PLAYFIELD_TOP_ROW; row--)
                 {
-                    for (int col = 1; col < COLS - 1; col++)
+                    for (int col = PLAYFIELD_FIRST_COL; col < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; col++)
                     {
                         auto b = tiles_[row - 1][col]->get_block();
                         if (b)
@@ -146,6 +151,12 @@ GameState Field::down_block()
                 }
             }
         }
+
+        top_row_ = std::min(top_row_, current_block_->get_top_boundary());
+        top_row_ += nr_of_full_lines;
+
+        // if top_row_ == ROWS-1 (field completely cleared)
+        //  --> points += 100
 
         // show next block
         add_new_block();
@@ -188,6 +199,56 @@ void Field::up_block()
     update_tiles();
 }
 
+void Field::clear_lines(int nr_of_lines)
+{
+    // if field height > 5, clear 5 rows from top of field
+    if (top_row_ <= PLAYFIELD_BOTTOM_ROW - nr_of_lines)
+    {
+        for (int r = top_row_; r < top_row_ + nr_of_lines; r++)
+        {
+            for (int c = PLAYFIELD_FIRST_COL; c < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; c++)
+            {
+                tiles_[r][c]->clear();
+            }
+        }
+    }
+}
+
+void Field::scatter_rows(int from_row, int to_row)
+{
+    std::cout << "scatter_rows - from_row: " << from_row << " to_row: " << to_row << std::endl;
+    for (int r = from_row; r < std::min(PLAYFIELD_TOP_ROW + PLAYFIELD_HEIGHT, to_row); r++)
+    {
+        for (int c = PLAYFIELD_FIRST_COL; c < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; c++)
+        {
+            bool should_toggle = std::experimental::randint(0, 1);
+            if (should_toggle)
+            {
+                tiles_[r][c]->toggle();
+            }
+        }
+    }
+}
+
+void Field::add_scattered_rows(int from_row, int to_row)
+{
+    std::cout << "add_scattered_rows - from_row: " << from_row << " to_row: " << to_row << std::endl;
+    auto dot_block = std::make_shared<DOT_Block>();
+    for (int r = from_row; r > std::min(PLAYFIELD_TOP_ROW, to_row); r--)
+    {
+        for (int c = PLAYFIELD_FIRST_COL; c < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; c++)
+        {
+            bool should_toggle = std::experimental::randint(0, 1);
+            if (should_toggle)
+            {
+                tiles_[r][c]->set_fixed(dot_block);
+            }
+        }
+    }
+
+    top_row_ += (from_row - to_row);
+}
+
 void Field::display(const UI &ui) const
 {
     ui.render_tiles(tiles_);
@@ -228,7 +289,7 @@ std::shared_ptr<Block> Field::generate_block() const
 int Field::check_full_lines(int from_row, int *full_line_indexes) const
 {
     int nr_of_full_lines = 0;
-    for (int row = from_row; row < std::min(ROWS - 1, from_row + 4); row++)
+    for (int row = from_row; row < std::min(PLAYFIELD_TOP_ROW + PLAYFIELD_HEIGHT, from_row + BLOCK_LAYOUT_SIZE); row++)
     {
         if (check_full_line(row))
         {
@@ -241,7 +302,7 @@ int Field::check_full_lines(int from_row, int *full_line_indexes) const
 
 bool Field::check_full_line(int row) const
 {
-    for (int col = 1; col < COLS - 1; col++)
+    for (int col = 1; col < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; col++)
     {
         if (!tiles_[row][col]->is_fixed())
         {

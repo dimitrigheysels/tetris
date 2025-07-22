@@ -1,13 +1,12 @@
+#include <iostream>
+
 #include "tile.h"
 #include "block.h"
 
 void Tile::clear()
 {
     is_fixed_ = false;
-    if (block_)
-    {
-        block_ = nullptr;
-    }
+    unset_block();
 }
 
 std::shared_ptr<Block> Tile::get_block() const
@@ -54,5 +53,27 @@ void Tile::update(const std::shared_ptr<Block> block)
     else
     {
         unset_block();
+    }
+}
+
+void Tile::toggle()
+{
+    if (block_)
+    {
+        backup_block_ = block_;
+        clear();
+    }
+    else
+    {
+        if (backup_block_)
+        {
+            set_fixed(backup_block_);
+            backup_block_ = nullptr;
+        }
+        else
+        {
+            auto dot_block = std::make_shared<DOT_Block>();
+            set_fixed(dot_block);
+        }
     }
 }

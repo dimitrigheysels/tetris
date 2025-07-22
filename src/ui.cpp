@@ -32,9 +32,9 @@ std::optional<sf::Event> UI::poll_event() const
 
 void UI::render_highscore(int score) const
 {
-    sf::RectangleShape scoreboard(sf::Vector2f(100.0, 100.0));
+    sf::RectangleShape scoreboard(sf::Vector2f(200.0, 100.0));
     scoreboard.setPosition({(COLS * SIZE_TILE) + 50, 200});
-    scoreboard.setFillColor(sf::Color::White);
+    scoreboard.setFillColor(sf::Color(64, 64, 64));
 
     std::stringstream ss;
     ss << "player highscore: " << score << std::endl;
@@ -50,13 +50,13 @@ void UI::render_highscore(int score) const
 
 void UI::render_scoreboard(int level, int score, int nr_of_lines) const
 {
-    sf::RectangleShape scoreboard(sf::Vector2f(100.0, 100.0));
+    sf::RectangleShape scoreboard(sf::Vector2f(200.0, 100.0));
     scoreboard.setPosition({(COLS * SIZE_TILE) + 50, 350});
-    scoreboard.setFillColor(sf::Color::White);
+    scoreboard.setFillColor(sf::Color(64, 64, 64));
 
     std::stringstream ss;
     ss << "level: " << level << std::endl;
-    ss << "nr of lines: " << nr_of_lines << std::endl;
+    ss << "# lines: " << nr_of_lines << std::endl;
     ss << "score: " << score << std::endl;
 
     sf::Text score_text(font_, ss.str(), 12);
