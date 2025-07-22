@@ -122,23 +122,23 @@ void Game::update_score(int nr_of_full_lines)
     switch (nr_of_full_lines)
     {
     case 1:
-        score_ += 1;
+        score_ += SCORE_1_LINE;
         break;
     case 2:
-        score_ += 3;
+        score_ += SCORE_2_LINE;
         break;
     case 3:
-        score_ += 6;
+        score_ += SCORE_3_LINE;
         break;
     case 4:
-        score_ += 10;
+        score_ += SCORE_4_LINE;
         break;
     }
 }
 
 void Game::update_level()
 {
-    if ((level_->get_number() < 4) && (score_ / 100.0f >= level_->get_number()))
+    if ((level_->get_number() < 4) && (score_ / SCORE_NEXT_LEVEL == level_->get_number()))
     {
         level_ = level_->next_level();
         level_event_countdown_ = level_->event_countdown_in_seconds();
@@ -193,13 +193,14 @@ void Game::process_game_state(const GameState &state)
     if (state.nr_of_full_lines > 0)
     {
         update_score(state.nr_of_full_lines);
-        // each 100 lines --> clear 4 lines (but do not clear whole field)
+
+        // clear lines every X lines (but do not clear whole field)
         if (nr_of_lines_ > next_nr_of_lines_bonus_)
         {
-            std::cout << "BONUS lines" << std::endl;
-            field_->clear_lines(4);
-            next_nr_of_lines_bonus_ += 100;
+            field_->clear_lines(BONUS_LINES);
+            next_nr_of_lines_bonus_ += BONUS_EVERY_LINES;
         }
+
         update_level();
         return;
     }

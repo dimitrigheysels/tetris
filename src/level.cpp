@@ -26,7 +26,7 @@ float Level_1::speed() const
 
 int Level_1::event_countdown_in_seconds() const
 {
-    0;
+    return 0;
 }
 
 // ========= LEVEL 2 =========

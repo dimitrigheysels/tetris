@@ -209,6 +209,8 @@ void Field::clear_lines(int nr_of_lines)
                 tiles_[r][c]->clear();
             }
         }
+
+        top_row_ -= nr_of_lines;
     }
 }
 
@@ -236,8 +238,8 @@ void Field::add_scattered_rows(int from_row, int to_row)
     {
         for (int c = PLAYFIELD_FIRST_COL; c < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; c++)
         {
-            bool should_toggle = std::experimental::randint(0, 1);
-            if (should_toggle)
+            bool should_add_tile = std::experimental::randint(0, 1);
+            if (should_add_tile)
             {
                 tiles_[r][c]->set_fixed(dot_block);
             }
@@ -249,7 +251,7 @@ void Field::add_scattered_rows(int from_row, int to_row)
 
 void Field::display(const UI &ui) const
 {
-    ui.render_tiles(tiles_);
+    ui.render_tiles(tiles_, top_row_);
     ui.render_next(*next_block_);
 }
 

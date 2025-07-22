@@ -92,13 +92,13 @@ void UI::render_level_countdown(int level_timer_elapsed_seconds, int level_event
     window_->draw(countdown_text);
 }
 
-void UI::render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
+void UI::render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS], int top_row) const
 {
     for (int row = 1; row < ROWS; row++)
     {
         for (int col = 0; col < COLS; col++)
         {
-            render_tile(row, col, tiles_[row][col]);
+            render_tile(row, col, tiles_[row][col], top_row);
         }
     }
 
@@ -138,7 +138,7 @@ void UI::render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
     //  window_->draw(t);
 }
 
-void UI::render_tile(int r, int c, const std::shared_ptr<Tile> tile) const
+void UI::render_tile(int r, int c, const std::shared_ptr<Tile> tile, int top_row) const
 {
     sf::RectangleShape shape = sf::RectangleShape(sf::Vector2f(SIZE_TILE, SIZE_TILE));
     shape.setPosition({c * SIZE_TILE, r * SIZE_TILE});
@@ -147,7 +147,14 @@ void UI::render_tile(int r, int c, const std::shared_ptr<Tile> tile) const
 
     if (tile->is_boundary())
     {
-        shape.setFillColor(sf::Color(128, 128, 128));
+        if (r == top_row)
+        {
+            shape.setFillColor(sf::Color::Black);
+        }
+        else
+        {
+            shape.setFillColor(sf::Color(128, 128, 128));
+        }
     }
     else if (auto block = tile->get_block())
     {
