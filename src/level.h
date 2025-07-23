@@ -79,3 +79,29 @@ public:
     float speed() const override;
     int event_countdown_in_seconds() const override;
 };
+
+class Level_5 : public Level
+{
+public:
+    Level_5() : Level() {}
+    ~Level_5() {}
+
+    int get_number() const override;
+    std::shared_ptr<Level> next_level() const override;
+    void do_something_with_field(const std::shared_ptr<Field> field) const override;
+    float speed() const override;
+    int event_countdown_in_seconds() const override;
+};
+
+class Level_6 : public Level
+{
+public:
+    Level_6() : Level() {}
+    ~Level_6() {}
+
+    int get_number() const override;
+    std::shared_ptr<Level> next_level() const override;
+    void do_something_with_field(const std::shared_ptr<Field> field) const override;
+    float speed() const override;
+    int event_countdown_in_seconds() const override;
+};
