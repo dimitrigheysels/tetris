@@ -1,6 +1,4 @@
 #include <sstream>
-#include <iostream>
-#include <iomanip>
 
 #include "ui.h"
 
@@ -149,7 +147,7 @@ void UI::render_tile(int r, int c, const std::shared_ptr<Tile> tile, int top_row
     {
         if (r == top_row)
         {
-            shape.setFillColor(sf::Color::Black);
+            shape.setFillColor(sf::Color(32, 32, 32));
         }
         else
         {

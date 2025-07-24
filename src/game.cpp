@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "game.h"
 #include "global.h"
 
@@ -59,8 +57,16 @@ void Game::update(std::optional<sf::Event> event)
                         {
                         case sf::Keyboard::Scancode::Down:
                         {
-                            // GameState state = player_->down_block();
-                            GameState state = field_->down_block();
+                            GameState state;
+                            if (e->control)
+                            {
+                                state = field_->drop_block();
+                            }
+                            else
+                            {
+                                state = field_->down_block();
+                            }
+
                             process_game_state(state);
                             break;
                         }
@@ -149,6 +155,7 @@ void Game::update_level()
 void Game::game_over()
 {
     player_->update_highscore(score_);
+    player_->update_highlines(nr_of_lines_);
     is_game_over_ = true;
 }
 

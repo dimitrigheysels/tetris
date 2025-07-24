@@ -1,4 +1,3 @@
-#include <iostream>
 
 #include "tile.h"
 #include "block.h"

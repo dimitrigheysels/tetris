@@ -11,11 +11,13 @@ class PlayerProfile
 {
 private:
     int highscore_;
+    int highlines_;
 
 public:
     PlayerProfile();
 
     void update_highscore(int score);
+    void update_highlines(int lines);
 
     void display(const UI &ui) const;
 

@@ -32,6 +32,7 @@ public:
     void update_tiles();
 
     GameState down_block();
+    GameState drop_block();
     void left_block();
     void right_block();
     void up_block();

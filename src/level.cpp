@@ -1,4 +1,3 @@
-#include <iostream>
 
 #include "level.h"
 #include "field.h"

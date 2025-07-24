@@ -290,5 +290,5 @@ const layout_t &DOT_Block::get_layout_after_rotation() const
 
 sf::Color DOT_Block::get_color() const
 {
-    return sf::Color::Black;
+    return sf::Color(112, 112, 112);
 }

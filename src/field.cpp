@@ -167,6 +167,17 @@ GameState Field::down_block()
     return state;
 }
 
+GameState Field::drop_block()
+{
+    while (current_block_->can_down(tiles_))
+    {
+        current_block_->down();
+        update_tiles();
+    }
+
+    return down_block();
+}
+
 void Field::left_block()
 {
     if (current_block_->can_left(tiles_))

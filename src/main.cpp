@@ -3,7 +3,6 @@
 
 #include "ui.h"
 #include "game.h"
-#include <iostream>
 
 int main()
 {
