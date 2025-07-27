@@ -7,6 +7,7 @@
 #include "field.h"
 #include "level.h"
 #include "ui.h"
+#include "sound_manager.h"
 
 class Game : public std::enable_shared_from_this<Game>
 {
@@ -29,7 +30,10 @@ private:
 
     int next_nr_of_lines_bonus_;
 
-    void process_game_state(const GameState &state);
+    std::shared_ptr<SoundManager> sm_;
+
+    void
+    process_game_state(const GameState &state);
 
 public:
     Game();

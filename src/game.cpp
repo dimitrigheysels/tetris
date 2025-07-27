@@ -1,8 +1,15 @@
+#include <SFML/Audio.hpp>
+#include <iostream>
+#include <math.h>
+
 #include "game.h"
 #include "global.h"
 
 Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
 {
+    sm_ = std::make_shared<SoundManager>();
+    // sm_->play();
+
     player_ = std::make_shared<PlayerProfile>();
     player_->load();
 
@@ -20,7 +27,7 @@ void Game::start_new_game()
     score_ = 0;
     nr_of_lines_ = 0;
 
-    level_ = std::make_shared<Level_1>();
+    level_ = std::make_shared<Level_4>();
     level_event_countdown_ = level_->event_countdown_in_seconds();
     field_ = std::make_shared<Field>();
     field_->add_new_block();

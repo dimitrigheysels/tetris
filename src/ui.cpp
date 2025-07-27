@@ -90,13 +90,13 @@ void UI::render_level_countdown(int level_timer_elapsed_seconds, int level_event
     window_->draw(countdown_text);
 }
 
-void UI::render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS], int top_row) const
+void UI::render_tiles(const std::shared_ptr<Tile> (&tiles)[ROWS][COLS], int top_row) const
 {
     for (int row = 1; row < ROWS; row++)
     {
         for (int col = 0; col < COLS; col++)
         {
-            render_tile(row, col, tiles_[row][col], top_row);
+            render_tile(row, col, tiles[row][col], top_row);
         }
     }
 

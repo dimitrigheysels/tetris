@@ -1,8 +1,10 @@
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include "ui.h"
 #include "game.h"
+#include "sound_manager.h"
 
 int main()
 {

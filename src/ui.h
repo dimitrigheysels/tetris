@@ -29,7 +29,7 @@ public:
     void render_highscore(int score) const;
     void render_scoreboard(int level, int score, int nr_of_lines) const;
     void render_level_countdown(int level_clock_elapsed_seconds, int level_event_countdown) const;
-    void render_tiles(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS], int top_row) const;
+    void render_tiles(const std::shared_ptr<Tile> (&tiles)[ROWS][COLS], int top_row) const;
     void render_tile(int r, int c, const std::shared_ptr<Tile> tile, int top_row) const;
     void render_next(const Block &block) const;
     void render_gameover() const;

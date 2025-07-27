@@ -25,7 +25,7 @@ FetchContent_MakeAvailable(SFML)
 
 #add_compile_options(-g )
 
-add_executable(MyTetris src/main.cpp src/ui.cpp src/game.cpp src/player_profile.cpp src/field.cpp src/tile.cpp src/block.cpp src/level.cpp)
+add_executable(MyTetris src/main.cpp src/ui.cpp src/game.cpp src/player_profile.cpp src/field.cpp src/tile.cpp src/block.cpp src/level.cpp src/sound_manager.cpp)
 
 
 

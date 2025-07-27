@@ -54,11 +54,8 @@ public:
 
     void set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]);
 
-    inline int get_position_row()
-    {
-        return position_row_;
-    }
-    inline int get_position_col() { return position_col_; }
+    int get_position_row() { return position_row_; }
+    int get_position_col() { return position_col_; }
 };
 
 class I_Block : public Block
