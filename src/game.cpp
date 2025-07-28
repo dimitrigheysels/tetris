@@ -8,7 +8,6 @@
 Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
 {
     sm_ = std::make_shared<SoundManager>();
-    // sm_->play();
 
     player_ = std::make_shared<PlayerProfile>();
     player_->load();
@@ -31,6 +30,7 @@ void Game::start_new_game()
     level_event_countdown_ = level_->event_countdown_in_seconds();
     field_ = std::make_shared<Field>();
     field_->add_new_block();
+    // sm_->play_level_music(level_->get_music());
 }
 
 void Game::update(std::optional<sf::Event> event)
@@ -127,6 +127,16 @@ void Game::update(std::optional<sf::Event> event)
             block_clock_.restart();
         }
     }
+
+    if (level_event_countdown_ > 0)
+    {
+        auto t = level_clock_.getElapsedTime().asSeconds();
+
+        if (std::abs(t - level_event_countdown_) <= 0.002)
+        {
+            sm_->play_bell();
+        }
+    }
 }
 
 void Game::update_score(int nr_of_full_lines)
@@ -136,26 +146,31 @@ void Game::update_score(int nr_of_full_lines)
     {
     case 1:
         score_ += SCORE_1_LINE;
+        sm_->play_destroy_1_line();
         break;
     case 2:
         score_ += SCORE_2_LINE;
+        sm_->play_destroy_2_lines();
         break;
     case 3:
         score_ += SCORE_3_LINE;
+        sm_->play_destroy_3_lines();
         break;
     case 4:
         score_ += SCORE_4_LINE;
+        sm_->play_destroy_4_lines();
         break;
     }
 }
 
 void Game::update_level()
 {
-    if ((level_->get_number() < 4) && (score_ / SCORE_NEXT_LEVEL == level_->get_number()))
+    if ((level_->get_number() < 6) && (score_ / SCORE_NEXT_LEVEL == level_->get_number()))
     {
         level_ = level_->next_level();
         level_event_countdown_ = level_->event_countdown_in_seconds();
         level_clock_.restart();
+        // sm_->play_level_music(level_->get_music());
     }
 }
 
