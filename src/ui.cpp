@@ -145,7 +145,7 @@ void UI::render_tile(int r, int c, const std::shared_ptr<Tile> tile, int top_row
 
     if (tile->is_boundary())
     {
-        if (r == top_row)
+        if (r == top_row && (c == 0 || c == 11))
         {
             shape.setFillColor(sf::Color(32, 32, 32));
         }

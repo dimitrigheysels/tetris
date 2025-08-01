@@ -26,9 +26,10 @@ void Game::start_new_game()
     score_ = 0;
     nr_of_lines_ = 0;
 
-    level_ = std::make_shared<Level_4>();
+    level_ = std::make_shared<Level_1>();
     level_event_countdown_ = level_->event_countdown_in_seconds();
-    field_ = std::make_shared<Field>();
+    // field_ = std::make_shared<Field>();
+    field_ = std::make_shared<Field>("../res/standard_field.txt");
     field_->add_new_block();
     // sm_->play_level_music(level_->get_music());
 }

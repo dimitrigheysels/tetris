@@ -1,6 +1,8 @@
 
 #include <experimental/random>
 #include <iostream>
+#include <fstream>
+#include <ranges>
 
 #include "field.h"
 #include "ui.h"
@@ -25,6 +27,88 @@ Field::Field() : top_row_(PLAYFIELD_BOTTOM_ROW)
     for (int col = 0; col < COLS; col++)
     {
         tiles_[ROWS - 1][col]->set_boundary(true);
+    }
+}
+
+struct FieldDescription
+{
+    int width{0};
+    int height{0};
+
+    std::vector<std::pair<int, int>> boundary_tiles;
+};
+
+Field::Field(const std::filesystem::path &path) : top_row_(PLAYFIELD_BOTTOM_ROW)
+{
+    // TODO check file structure:
+    //  2 ints (width, height)
+    //  'height' number of 2 pairs:
+    //      (x1,y1) for start boundary tile
+    //      (x2,y2) for end_boundary_tile
+    //      --> x1 < x2
+    //      --> y1 == y2
+    //      --> y1 == y2 == indexnumber
+
+    FieldDescription field_desc{};
+
+    // width:height
+    // 1,1<tab>5,1
+    // 1,2<tab>5,2
+    //
+    // opmerking: y-coordinates are not needed if coordinates are put in order in file
+    std::ifstream in(path, std::fstream::in);
+
+    std::string line;
+    std::getline(in, line);
+    std::istringstream iss(line);
+    iss >> field_desc.width;
+    iss.ignore(std::numeric_limits<std::streamsize>::max(), ':');
+    iss >> field_desc.height;
+
+    while (std::getline(in, line))
+    {
+        std::istringstream iss(line);
+        while (!iss.eof())
+        {
+            std::pair<int, int> p1;
+            iss >> p1.first;
+            iss.ignore(std::numeric_limits<std::streamsize>::max(), ',');
+            iss >> p1.second;
+            iss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');
+            field_desc.boundary_tiles.emplace_back(p1);
+        }
+    }
+
+    in.close();
+
+    // create field based on field descriptor
+    // (if field_descriptor.is_valid())
+
+    // hidden first row
+    for (int col = 0; col < field_desc.width; col++)
+    {
+        tiles_[0][col] = std::make_shared<Tile>(0, col);
+    }
+
+    // read playfield
+    for (int row = 1; row < field_desc.height + 1; row++)
+    {
+        for (int col = 0; col < field_desc.width; col++)
+        {
+            tiles_[row][col] = std::make_shared<Tile>(row, col);
+
+            if (std::ranges::find_if(field_desc.boundary_tiles, [row, col](const std::pair<int, int> &p)
+                                     { return p.first == col && p.second == row; }) != field_desc.boundary_tiles.end())
+            {
+                tiles_[row][col]->set_boundary(true);
+            }
+        }
+    }
+
+    // bottom boundary row
+    for (int col = 0; col < field_desc.width; col++)
+    {
+        tiles_[field_desc.height][col]->set_boundary(true);
     }
 }
 
@@ -217,7 +301,10 @@ void Field::clear_lines(int nr_of_lines)
         {
             for (int c = PLAYFIELD_FIRST_COL; c < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; c++)
             {
-                tiles_[r][c]->clear();
+                if (!tiles_[r][c]->is_boundary())
+                {
+                    tiles_[r][c]->clear();
+                }
             }
         }
 
@@ -315,7 +402,7 @@ bool Field::check_full_line(int row) const
 {
     for (int col = 1; col < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; col++)
     {
-        if (!tiles_[row][col]->is_fixed())
+        if (!(tiles_[row][col]->is_fixed() || tiles_[row][col]->is_boundary()))
         {
             return false;
         }
