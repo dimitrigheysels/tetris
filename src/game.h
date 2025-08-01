@@ -6,7 +6,6 @@
 #include "player_profile.h"
 #include "field.h"
 #include "level.h"
-#include "ui.h"
 #include "sound_manager.h"
 
 class Game : public std::enable_shared_from_this<Game>
@@ -32,8 +31,15 @@ private:
 
     std::shared_ptr<SoundManager> sm_;
 
-    void
-    process_game_state(const GameState &state);
+    sf::Font font_;
+
+    FieldDescription field_description_;
+
+    void process_game_state(const GameState &state);
+
+    void render_gameover(const std::shared_ptr<sf::RenderWindow> window) const;
+    void render_scoreboard(const std::shared_ptr<sf::RenderWindow> window) const;
+    void render_level_countdown(const std::shared_ptr<sf::RenderWindow> window) const;
 
 public:
     Game();
@@ -48,5 +54,6 @@ public:
     void update_level();
     void game_over();
 
-    void display(const UI &ui) const;
+    // void display(const UI &ui) const;
+    void display(const std::shared_ptr<sf::RenderWindow> &window) const;
 };

@@ -5,8 +5,9 @@
 #include "game.h"
 #include "global.h"
 
-Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
+Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES), field_description_(FieldDescription("../res/standard_field.txt"))
 {
+    font_.openFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
     sm_ = std::make_shared<SoundManager>();
 
     player_ = std::make_shared<PlayerProfile>();
@@ -29,7 +30,7 @@ void Game::start_new_game()
     level_ = std::make_shared<Level_1>();
     level_event_countdown_ = level_->event_countdown_in_seconds();
     // field_ = std::make_shared<Field>();
-    field_ = std::make_shared<Field>("../res/standard_field.txt");
+    field_ = std::make_shared<Field>(field_description_);
     field_->add_new_block();
     // sm_->play_level_music(level_->get_music());
 }
@@ -182,22 +183,97 @@ void Game::game_over()
     is_game_over_ = true;
 }
 
-void Game::display(const UI &ui) const
+// void Game::display(const UI &ui) const
+// {
+//     if (is_game_over_)
+//     {
+//         ui.render_gameover();
+//     }
+//     else
+//     {
+//         field_->display(ui);
+//         player_->display(ui);
+//         ui.render_scoreboard(level_->get_number(), score_, nr_of_lines_);
+//         if (level_event_countdown_ > 0)
+//         {
+//             ui.render_level_countdown(level_clock_.getElapsedTime().asSeconds(), level_event_countdown_);
+//         }
+//     }
+// }
+
+void Game::display(const std::shared_ptr<sf::RenderWindow> &window) const
 {
     if (is_game_over_)
     {
-        ui.render_gameover();
+        render_gameover(window);
     }
     else
     {
-        field_->display(ui);
-        player_->display(ui);
-        ui.render_scoreboard(level_->get_number(), score_, nr_of_lines_);
+        field_->display(window);
+        player_->display(window);
+        render_scoreboard(window);
         if (level_event_countdown_ > 0)
         {
-            ui.render_level_countdown(level_clock_.getElapsedTime().asSeconds(), level_event_countdown_);
+            render_level_countdown(window);
         }
     }
+}
+
+void Game::render_gameover(const std::shared_ptr<sf::RenderWindow> window) const
+{
+    sf::Text gameover_text(font_, "G A M E     O V E R\nnew game (y/n)", 30);
+
+    int gameover_textwidth = gameover_text.getLocalBounds().size.x;
+    int gameover_textheight = gameover_text.getLocalBounds().size.y;
+
+    gameover_text.setPosition({(window->getSize().x - gameover_textwidth) / 2.0f,
+                               (window->getSize().y - gameover_textheight) / 2.0f});
+    gameover_text.setOutlineThickness(3);
+
+    window->draw(gameover_text);
+}
+
+void Game::render_scoreboard(const std::shared_ptr<sf::RenderWindow> window) const
+{
+    sf::RectangleShape scoreboard(sf::Vector2f(200.0, 100.0));
+    scoreboard.setPosition({(MAX_COLS * SIZE_TILE) + 50, 260 + (2 * SIZE_TILE)});
+    scoreboard.setFillColor(sf::Color(64, 64, 64));
+
+    std::stringstream ss;
+    ss << "level: " << level_->get_number() << std::endl;
+    ss << "# lines: " << nr_of_lines_ << std::endl;
+    ss << "score: " << score_ << std::endl;
+
+    sf::Text score_text(font_, ss.str(), 12);
+
+    score_text.setPosition({scoreboard.getPosition().x + 10, scoreboard.getPosition().y + 10});
+
+    score_text.setOutlineThickness(1);
+
+    window->draw(scoreboard);
+    window->draw(score_text);
+}
+
+void Game::render_level_countdown(const std::shared_ptr<sf::RenderWindow> window) const
+{
+    sf::RectangleShape countdown_timer(sf::Vector2f(200.0, 100.0));
+    countdown_timer.setPosition({(MAX_COLS * SIZE_TILE) + 50, 400 + (2 * SIZE_TILE)});
+    countdown_timer.setFillColor(sf::Color(64, 64, 64));
+
+    std::stringstream ss;
+    ss << std::max(0, level_event_countdown_ - (int)level_clock_.getElapsedTime().asSeconds());
+
+    sf::Text countdown_text(font_, ss.str(), 32);
+    int countdown_textwidth = countdown_text.getLocalBounds().size.x;
+    int countdown_textheight = countdown_text.getLocalBounds().size.y;
+
+    countdown_text.setPosition({countdown_timer.getPosition().x + ((countdown_timer.getSize().x - countdown_textwidth) / 2.0f),
+                                countdown_timer.getPosition().y + ((countdown_timer.getSize().y - countdown_textheight) / 2.0f)});
+
+    countdown_text.setOutlineThickness(2);
+
+    window->draw(countdown_timer);
+    window->draw(countdown_text);
 }
 
 void Game::process_game_state(const GameState &state)

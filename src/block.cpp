@@ -3,7 +3,7 @@
 #include "block.h"
 #include "tile.h"
 
-void Block::set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS])
+void Block::set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS])
 {
     for (int row = position_row_; row < position_row_ + BLOCK_LAYOUT_SIZE; row++)
     {
@@ -74,7 +74,7 @@ int Block::get_top_boundary() const
     return position_row_;
 }
 
-bool Block::can_down(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
+bool Block::can_down(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const
 {
     for (int col = position_col_; col < position_col_ + BLOCK_LAYOUT_SIZE; col++)
     {
@@ -93,7 +93,7 @@ void Block::down()
     position_row_++;
 }
 
-bool Block::can_left(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
+bool Block::can_left(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const
 {
     for (int row = position_row_; row < position_row_ + BLOCK_LAYOUT_SIZE; row++)
     {
@@ -112,7 +112,7 @@ void Block::left()
     position_col_--;
 }
 
-bool Block::can_right(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
+bool Block::can_right(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const
 {
     for (int row = position_row_; row < position_row_ + BLOCK_LAYOUT_SIZE; row++)
     {
@@ -131,7 +131,7 @@ void Block::right()
     position_col_++;
 }
 
-bool Block::can_rotate(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const
+bool Block::can_rotate(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const
 {
     auto rot_layout = get_layout_after_rotation();
 

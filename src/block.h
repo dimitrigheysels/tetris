@@ -35,16 +35,16 @@ public:
     virtual const layout_t &get_layout_after_rotation() const = 0;
     virtual sf::Color get_color() const = 0;
 
-    bool can_down(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const;
+    bool can_down(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const;
     void down();
 
-    bool can_left(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const;
+    bool can_left(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const;
     void left();
 
-    bool can_right(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const;
+    bool can_right(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const;
     void right();
 
-    bool can_rotate(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]) const;
+    bool can_rotate(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const;
     void rotate();
 
     std::optional<int> get_bottom_boundary(int col) const;
@@ -52,7 +52,7 @@ public:
     std::optional<int> get_right_boundary(int row) const;
     int get_top_boundary() const;
 
-    void set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[ROWS][COLS]);
+    void set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]);
 
     int get_position_row() { return position_row_; }
     int get_position_col() { return position_col_; }

@@ -5,8 +5,65 @@
 #include <ranges>
 
 #include "field.h"
-#include "ui.h"
 
+FieldDescription::FieldDescription(const std::filesystem::path &path)
+{
+    std::ifstream in(path, std::fstream::in);
+    long maxsize = std::numeric_limits<std::streamsize>::max();
+    if (in.is_open())
+    {
+        std::string line;
+        std::getline(in, line);
+        std::istringstream iss(line);
+        iss >> width_;
+        iss.ignore(maxsize, ':');
+        iss >> height_;
+
+        while (std::getline(in, line))
+        {
+            std::istringstream iss(line);
+            while (!iss.eof())
+            {
+                std::pair<int, int> coordinates;
+                iss >> coordinates.first;
+                iss.ignore(maxsize, ',');
+                iss >> coordinates.second;
+                iss.ignore(maxsize, ' ');
+                boundary_coordinates_.emplace_back(coordinates);
+            }
+        }
+        in.close();
+    }
+}
+
+bool FieldDescription::is_valid() const
+{
+    // field should at least be able to contain a block (4x4)
+    if (width_ < 6)
+        return false;
+    if (height_ < 4)
+        return false;
+
+    // x-coordinate must be between 0 and width
+    // y-coordinate must be between 1 and height
+    for (const auto &[x, y] : boundary_coordinates_)
+    {
+        if (x < 0 || x >= width_)
+            return false;
+        if (y < 1 || y > height_)
+            return false;
+    }
+
+    return true;
+}
+
+bool FieldDescription::contains_boundary_coordinates(int x, int y) const
+{
+    return std::ranges::find_if(boundary_coordinates_, [x, y](const std::pair<int, int> &p)
+                                { return p.first == x && p.second == y; }) != boundary_coordinates_.end();
+}
+
+/*
 Field::Field() : top_row_(PLAYFIELD_BOTTOM_ROW)
 {
     for (int row = 0; row < ROWS; row++)
@@ -29,92 +86,48 @@ Field::Field() : top_row_(PLAYFIELD_BOTTOM_ROW)
         tiles_[ROWS - 1][col]->set_boundary(true);
     }
 }
+*/
 
-struct FieldDescription
+Field::Field(const FieldDescription &field_description)
 {
-    int width{0};
-    int height{0};
-
-    std::vector<std::pair<int, int>> boundary_tiles;
-};
-
-Field::Field(const std::filesystem::path &path) : top_row_(PLAYFIELD_BOTTOM_ROW)
-{
-    // TODO check file structure:
-    //  2 ints (width, height)
-    //  'height' number of 2 pairs:
-    //      (x1,y1) for start boundary tile
-    //      (x2,y2) for end_boundary_tile
-    //      --> x1 < x2
-    //      --> y1 == y2
-    //      --> y1 == y2 == indexnumber
-
-    FieldDescription field_desc{};
-
-    // width:height
-    // 1,1<tab>5,1
-    // 1,2<tab>5,2
-    //
-    // opmerking: y-coordinates are not needed if coordinates are put in order in file
-    std::ifstream in(path, std::fstream::in);
-
-    std::string line;
-    std::getline(in, line);
-    std::istringstream iss(line);
-    iss >> field_desc.width;
-    iss.ignore(std::numeric_limits<std::streamsize>::max(), ':');
-    iss >> field_desc.height;
-
-    while (std::getline(in, line))
-    {
-        std::istringstream iss(line);
-        while (!iss.eof())
-        {
-            std::pair<int, int> p1;
-            iss >> p1.first;
-            iss.ignore(std::numeric_limits<std::streamsize>::max(), ',');
-            iss >> p1.second;
-            iss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');
-            field_desc.boundary_tiles.emplace_back(p1);
-        }
-    }
-
-    in.close();
 
     // create field based on field descriptor
-    // (if field_descriptor.is_valid())
-
-    // hidden first row
-    for (int col = 0; col < field_desc.width; col++)
+    if (!field_description.is_valid())
     {
-        tiles_[0][col] = std::make_shared<Tile>(0, col);
+        // create default field (25x10)
+        //
     }
-
-    // read playfield
-    for (int row = 1; row < field_desc.height + 1; row++)
+    else
     {
-        for (int col = 0; col < field_desc.width; col++)
+        // create hidden first row
+        for (int col = 0; col < field_description.get_width(); col++)
         {
-            tiles_[row][col] = std::make_shared<Tile>(row, col);
+            tiles_[0][col] = std::make_shared<Tile>(0, col);
+        }
 
-            if (std::ranges::find_if(field_desc.boundary_tiles, [row, col](const std::pair<int, int> &p)
-                                     { return p.first == col && p.second == row; }) != field_desc.boundary_tiles.end())
+        // create playfield
+        for (int row = 1; row <= field_description.get_height(); row++)
+        {
+            for (int col = 0; col < field_description.get_width(); col++)
             {
-                tiles_[row][col]->set_boundary(true);
+                tiles_[row][col] = std::make_shared<Tile>(row, col);
+
+                if (field_description.contains_boundary_coordinates(col, row))
+                {
+                    tiles_[row][col]->set_boundary(true);
+                }
             }
         }
-    }
 
-    // bottom boundary row
-    for (int col = 0; col < field_desc.width; col++)
-    {
-        tiles_[field_desc.height][col]->set_boundary(true);
-    }
-}
+        // bottom boundary row
+        for (int col = 0; col < field_description.get_width(); col++)
+        {
+            tiles_[field_description.get_height() + 1][col] = std::make_shared<Tile>(field_description.get_height() + 2, col);
+            tiles_[field_description.get_height() + 1][col]->set_boundary(true);
+        }
 
-int Field::get_top_row() const
-{
-    return top_row_;
+        top_row_ = field_description.get_height();
+    }
 }
 
 void Field::add_new_block()
@@ -347,10 +360,74 @@ void Field::add_scattered_rows(int from_row, int to_row)
     top_row_ += (from_row - to_row);
 }
 
-void Field::display(const UI &ui) const
+void Field::display(const std::shared_ptr<sf::RenderWindow> window) const
 {
-    ui.render_tiles(tiles_, top_row_);
-    ui.render_next(*next_block_);
+    render_tiles(window);
+    render_next_block(window);
+}
+
+void Field::render_next_block(const std::shared_ptr<sf::RenderWindow> window) const
+{
+    auto layout = next_block_->get_current_layout();
+
+    for (int row = 0; row < 4; row++)
+    {
+        for (int col = 0; col < 4; col++)
+        {
+            if (layout[row][col])
+            {
+                auto shape = sf::RectangleShape(sf::Vector2f(SIZE_TILE, SIZE_TILE));
+                shape.setPosition({X_NEXT_BLOCK + (col * SIZE_TILE), Y_NEXT_BLOCK + (row * SIZE_TILE)});
+                shape.setOutlineColor(sf::Color::Black);
+                shape.setOutlineThickness(-1.0f);
+                shape.setFillColor(next_block_->get_color());
+
+                window->draw(shape);
+            }
+        }
+    }
+}
+
+void Field::render_tiles(const std::shared_ptr<sf::RenderWindow> window) const
+{
+    for (int row = 1; row < MAX_ROWS; row++)
+    {
+        for (int col = 0; col < MAX_COLS; col++)
+        {
+            const auto &t = tiles_[row][col];
+
+            sf::RectangleShape shape = sf::RectangleShape(sf::Vector2f(SIZE_TILE, SIZE_TILE));
+            shape.setPosition({col * SIZE_TILE, row * SIZE_TILE});
+            shape.setOutlineColor(sf::Color::Black);
+            shape.setOutlineThickness(-1.0f);
+
+            if (!t)
+            {
+                shape.setFillColor(sf::Color(16, 16, 16));
+            }
+            else if (t->is_boundary())
+            {
+                if (row == top_row_ && (col == 0 || col == 11))
+                {
+                    shape.setFillColor(sf::Color(32, 32, 32));
+                }
+                else
+                {
+                    shape.setFillColor(sf::Color(128, 128, 128));
+                }
+            }
+            else if (auto block = t->get_block())
+            {
+                shape.setFillColor(block->get_color());
+            }
+            else
+            {
+                shape.setFillColor(sf::Color(64, 64, 64));
+            }
+
+            window->draw(shape);
+        }
+    }
 }
 
 std::shared_ptr<Block> Field::generate_block() const
