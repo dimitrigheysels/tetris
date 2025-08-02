@@ -1,4 +1,5 @@
 
+#include <spdlog/spdlog.h>
 #include <experimental/random>
 #include <iostream>
 #include <fstream>
@@ -8,6 +9,8 @@
 
 FieldDescription::FieldDescription(const std::filesystem::path &path)
 {
+    spdlog::info("Loading field description '{}' ...", path.filename().c_str());
+
     std::ifstream in(path, std::fstream::in);
     long maxsize = std::numeric_limits<std::streamsize>::max();
     if (in.is_open())
@@ -15,9 +18,13 @@ FieldDescription::FieldDescription(const std::filesystem::path &path)
         std::string line;
         std::getline(in, line);
         std::istringstream iss(line);
-        iss >> width_;
-        iss.ignore(maxsize, ':');
         iss >> height_;
+        iss.ignore(maxsize, ':');
+        iss >> width_;
+
+        std::getline(in, line);
+        std::istringstream iss2(line);
+        iss2 >> start_col_;
 
         while (std::getline(in, line))
         {
@@ -34,99 +41,106 @@ FieldDescription::FieldDescription(const std::filesystem::path &path)
         }
         in.close();
     }
+    else
+    {
+        spdlog::error("Unable to open field description file");
+    }
 }
 
 bool FieldDescription::is_valid() const
 {
     // field should at least be able to contain a block (4x4)
     if (width_ < 6)
+    {
+        spdlog::info("Field description 'width' is too small");
         return false;
+    }
     if (height_ < 4)
+    {
+        spdlog::info("Field description 'height' is too small");
         return false;
+    }
+    // field should have at least two boundary tiles for each row
+    if (boundary_coordinates_.size() < height_ * 2)
+    {
+        spdlog::info("Field description number of 'boundary coordinates' is too small");
+        return false;
+    }
+    // start position should be between the boundary coordinates of first row
+    if (start_col_ <= boundary_coordinates_.at(0).second || start_col_ >= boundary_coordinates_.at(1).second)
+    {
+        spdlog::info("Field description 'start position' is invalid");
+        return false;
+    }
 
     // x-coordinate must be between 0 and width
     // y-coordinate must be between 1 and height
-    for (const auto &[x, y] : boundary_coordinates_)
+    for (const auto &[row, col] : boundary_coordinates_)
     {
-        if (x < 0 || x >= width_)
+        if (col < 0 || col >= width_)
+        {
+            spdlog::info("Field description column '{}' of coordinate '{},{}' is invalid", col, row, col);
             return false;
-        if (y < 1 || y > height_)
+        }
+        if (row < 1 || row > height_)
+        {
+            spdlog::info("Field description row '{}' of coordinate '{},{}' is invalid", row, row, col);
             return false;
+        }
     }
 
     return true;
 }
 
-bool FieldDescription::contains_boundary_coordinates(int x, int y) const
+bool FieldDescription::contains_boundary_coordinates(int row, int col) const
 {
-    return std::ranges::find_if(boundary_coordinates_, [x, y](const std::pair<int, int> &p)
-                                { return p.first == x && p.second == y; }) != boundary_coordinates_.end();
+    return std::ranges::find_if(boundary_coordinates_, [row, col](const std::pair<int, int> &p)
+                                { return p.first == row && p.second == col; }) != boundary_coordinates_.end();
 }
 
-/*
-Field::Field() : top_row_(PLAYFIELD_BOTTOM_ROW)
+Field::Field()
 {
-    for (int row = 0; row < ROWS; row++)
+    for (int row = 0; row < MAX_ROWS + 1; row++)
     {
-        for (int col = 0; col < COLS; col++)
+        for (int col = 0; col < MAX_COLS; col++)
         {
             tiles_[row][col] = std::make_shared<Tile>(row, col);
         }
     }
-
-    // determine boundary tiles
-    for (int row = 0; row < ROWS; row++)
-    {
-        tiles_[row][0]->set_boundary(true);
-        tiles_[row][COLS - 1]->set_boundary(true);
-    }
-
-    for (int col = 0; col < COLS; col++)
-    {
-        tiles_[ROWS - 1][col]->set_boundary(true);
-    }
 }
-*/
 
-Field::Field(const FieldDescription &field_description)
+Field::Field(const FieldDescription &field_description) : Field()
 {
+    spdlog::info("Initializing field ...");
 
-    // create field based on field descriptor
-    if (!field_description.is_valid())
+    // create playfield
+    for (int row = 1; row <= field_description.get_height(); row++)
     {
-        // create default field (25x10)
-        //
-    }
-    else
-    {
-        // create hidden first row
         for (int col = 0; col < field_description.get_width(); col++)
         {
-            tiles_[0][col] = std::make_shared<Tile>(0, col);
-        }
-
-        // create playfield
-        for (int row = 1; row <= field_description.get_height(); row++)
-        {
-            for (int col = 0; col < field_description.get_width(); col++)
+            tiles_[row][col]->set_part_of_playfield();
+            if (field_description.contains_boundary_coordinates(row, col))
             {
-                tiles_[row][col] = std::make_shared<Tile>(row, col);
-
-                if (field_description.contains_boundary_coordinates(col, row))
-                {
-                    tiles_[row][col]->set_boundary(true);
-                }
+                tiles_[row][col]->set_boundary(true);
             }
         }
+    }
 
-        // bottom boundary row
-        for (int col = 0; col < field_description.get_width(); col++)
+    start_col_ = field_description.get_start_col();
+    top_row_ = field_description.get_height();
+}
+
+void Field::reset()
+{
+    for (int row = 0; row < MAX_ROWS; row++)
+    {
+        for (int col = 0; col < MAX_COLS; col++)
         {
-            tiles_[field_description.get_height() + 1][col] = std::make_shared<Tile>(field_description.get_height() + 2, col);
-            tiles_[field_description.get_height() + 1][col]->set_boundary(true);
+            if (!tiles_[row][col]->is_boundary())
+            {
+                tiles_[row][col]->clear();
+            }
         }
-
-        top_row_ = field_description.get_height();
     }
 }
 
@@ -222,6 +236,7 @@ GameState Field::down_block()
         // process full lines...
         int nr_of_full_lines = 0;
         int full_line_indexes[BLOCK_LAYOUT_SIZE] = {0};
+
         nr_of_full_lines = check_full_lines(r, full_line_indexes);
 
         // ...  and move tiles down
@@ -307,6 +322,8 @@ void Field::up_block()
 
 void Field::clear_lines(int nr_of_lines)
 {
+    spdlog::debug("Clear {} lines from row {}", nr_of_lines, top_row_);
+
     // if field height > 5, clear 5 rows from top of field
     if (top_row_ <= PLAYFIELD_BOTTOM_ROW - nr_of_lines)
     {
@@ -327,7 +344,8 @@ void Field::clear_lines(int nr_of_lines)
 
 void Field::scatter_rows(int from_row, int to_row)
 {
-    std::cout << "scatter_rows - from_row: " << from_row << " to_row: " << to_row << std::endl;
+    spdlog::debug("Scattering rows - from row {} to row {}", from_row, to_row);
+
     for (int r = from_row; r < std::min(PLAYFIELD_TOP_ROW + PLAYFIELD_HEIGHT, to_row); r++)
     {
         for (int c = PLAYFIELD_FIRST_COL; c < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; c++)
@@ -343,7 +361,8 @@ void Field::scatter_rows(int from_row, int to_row)
 
 void Field::add_scattered_rows(int from_row, int to_row)
 {
-    std::cout << "add_scattered_rows - from_row: " << from_row << " to_row: " << to_row << std::endl;
+    spdlog::debug("Adding scattered rows - from row {} to row {}", from_row, to_row);
+
     auto dot_block = std::make_shared<DOT_Block>();
     for (int r = from_row; r > std::max(PLAYFIELD_TOP_ROW, to_row); r--)
     {
@@ -390,7 +409,7 @@ void Field::render_next_block(const std::shared_ptr<sf::RenderWindow> window) co
 
 void Field::render_tiles(const std::shared_ptr<sf::RenderWindow> window) const
 {
-    for (int row = 1; row < MAX_ROWS; row++)
+    for (int row = 1; row < MAX_ROWS + 1; row++)
     {
         for (int col = 0; col < MAX_COLS; col++)
         {
@@ -401,20 +420,20 @@ void Field::render_tiles(const std::shared_ptr<sf::RenderWindow> window) const
             shape.setOutlineColor(sf::Color::Black);
             shape.setOutlineThickness(-1.0f);
 
-            if (!t)
+            if (!t->is_part_of_playfield())
             {
                 shape.setFillColor(sf::Color(16, 16, 16));
             }
             else if (t->is_boundary())
             {
-                if (row == top_row_ && (col == 0 || col == 11))
-                {
-                    shape.setFillColor(sf::Color(32, 32, 32));
-                }
-                else
-                {
-                    shape.setFillColor(sf::Color(128, 128, 128));
-                }
+                // if (row == top_row_ && (col == 0 || col == PLAYFIELD_WIDTH - 1))
+                // {
+                //     shape.setFillColor(sf::Color(32, 32, 32));
+                // }
+                // else
+                // {
+                shape.setFillColor(sf::Color(128, 128, 128));
+                // }
             }
             else if (auto block = t->get_block())
             {
@@ -436,25 +455,25 @@ std::shared_ptr<Block> Field::generate_block() const
     switch (r)
     {
     case 0:
-        return std::make_shared<I_Block>();
+        return std::make_shared<I_Block>(start_col_);
 
     case 1:
-        return std::make_shared<S_Block>();
+        return std::make_shared<S_Block>(start_col_);
 
     case 2:
-        return std::make_shared<Z_Block>();
+        return std::make_shared<Z_Block>(start_col_);
 
     case 3:
-        return std::make_shared<T_Block>();
+        return std::make_shared<T_Block>(start_col_);
 
     case 4:
-        return std::make_shared<L_Block>();
+        return std::make_shared<L_Block>(start_col_);
 
     case 5:
-        return std::make_shared<J_Block>();
+        return std::make_shared<J_Block>(start_col_);
 
     case 6:
-        return std::make_shared<O_Block>();
+        return std::make_shared<O_Block>(start_col_);
     }
 
     // should not happen
@@ -463,11 +482,14 @@ std::shared_ptr<Block> Field::generate_block() const
 
 int Field::check_full_lines(int from_row, int *full_line_indexes) const
 {
+    spdlog::debug("Checking for full lines from row {}", from_row);
+
     int nr_of_full_lines = 0;
     for (int row = from_row; row < std::min(PLAYFIELD_TOP_ROW + PLAYFIELD_HEIGHT, from_row + BLOCK_LAYOUT_SIZE); row++)
     {
         if (check_full_line(row))
         {
+            spdlog::debug("Full lines found at row {}", row);
             full_line_indexes[nr_of_full_lines++] = row;
         }
     }

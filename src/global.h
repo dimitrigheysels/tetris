@@ -1,10 +1,10 @@
 #pragma once
 
 constexpr int PLAYFIELD_TOP_ROW = 1;
-constexpr int PLAYFIELD_HEIGHT = 25;
+constexpr int PLAYFIELD_HEIGHT = 30; // 25;
 constexpr int PLAYFIELD_BOTTOM_ROW = PLAYFIELD_HEIGHT;
 constexpr int PLAYFIELD_FIRST_COL = 1;
-constexpr int PLAYFIELD_WIDTH = 10;
+constexpr int PLAYFIELD_WIDTH = 30; // 10;
 constexpr int PLAYFIELD_LAST_COL = PLAYFIELD_WIDTH;
 constexpr int MAX_ROWS = 30; // 1 invisible at the top, 25 playfield, 1 boundary at the bottom
 constexpr int MAX_COLS = 30; // 1 boundary at the left, 10 playfield, 1 boundary at the right

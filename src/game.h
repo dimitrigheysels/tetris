@@ -33,7 +33,7 @@ private:
 
     sf::Font font_;
 
-    FieldDescription field_description_;
+    // FieldDescription field_description_;
 
     void process_game_state(const GameState &state);
 
@@ -42,7 +42,7 @@ private:
     void render_level_countdown(const std::shared_ptr<sf::RenderWindow> window) const;
 
 public:
-    Game();
+    Game(const FieldDescription &field_description);
 
     bool is_running() const;
 

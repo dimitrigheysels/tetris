@@ -15,9 +15,9 @@ class Tile;
 class Block : public std::enable_shared_from_this<Block>
 {
 public:
-    explicit Block() : layout_index_(std::experimental::randint(0, 3)),
-                       position_col_(5),
-                       position_row_(1)
+    explicit Block(int initial_col) : layout_index_(std::experimental::randint(0, 3)),
+                                      position_col_(initial_col),
+                                      position_row_(1)
     {
     }
 
@@ -35,16 +35,16 @@ public:
     virtual const layout_t &get_layout_after_rotation() const = 0;
     virtual sf::Color get_color() const = 0;
 
-    bool can_down(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const;
+    bool can_down(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS + 1][MAX_COLS]) const;
     void down();
 
-    bool can_left(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const;
+    bool can_left(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS + 1][MAX_COLS]) const;
     void left();
 
-    bool can_right(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const;
+    bool can_right(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS + 1][MAX_COLS]) const;
     void right();
 
-    bool can_rotate(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]) const;
+    bool can_rotate(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS + 1][MAX_COLS]) const;
     void rotate();
 
     std::optional<int> get_bottom_boundary(int col) const;
@@ -52,7 +52,7 @@ public:
     std::optional<int> get_right_boundary(int row) const;
     int get_top_boundary() const;
 
-    void set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS][MAX_COLS]);
+    void set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS + 1][MAX_COLS]);
 
     int get_position_row() { return position_row_; }
     int get_position_col() { return position_col_; }
@@ -82,7 +82,7 @@ private:
                                              {false, false, false, false}}}; // | | | | |
 
 public:
-    explicit I_Block() : Block()
+    explicit I_Block(int initial_col) : Block(initial_col)
     {
     }
     ~I_Block() {}
@@ -115,7 +115,7 @@ private:
                                              {true, true, false, false},    // |x|x| | |
                                              {false, true, false, false}}}; // | |x| | |
 public:
-    explicit S_Block() : Block()
+    explicit S_Block(int initial_col) : Block(initial_col)
     {
     }
 
@@ -149,7 +149,7 @@ private:
                                              {true, true, false, false},    // |x|x| | |
                                              {true, false, false, false}}}; // |x| | | |
 public:
-    explicit Z_Block() : Block()
+    explicit Z_Block(int initial_col) : Block(initial_col)
     {
     }
 
@@ -184,7 +184,7 @@ private:
                                              {false, true, false, false}}}; // | |x| | |
 
 public:
-    explicit T_Block() : Block()
+    explicit T_Block(int initial_col) : Block(initial_col)
     {
     }
 
@@ -219,7 +219,7 @@ private:
                                              {false, false, false, false}}}; // | | | | |
 
 public:
-    explicit L_Block() : Block()
+    explicit L_Block(int initial_col) : Block(initial_col)
     {
     }
 
@@ -254,7 +254,7 @@ private:
                                              {false, false, true, false}}}; // | | |x| |
 
 public:
-    explicit J_Block() : Block()
+    explicit J_Block(int initial_col) : Block(initial_col)
     {
     }
 
@@ -289,7 +289,7 @@ private:
                                              {false, false, false, false}}}; // | | | | |
 
 public:
-    explicit O_Block() : Block()
+    explicit O_Block(int initial_col) : Block(initial_col)
     {
     }
 
@@ -324,7 +324,7 @@ private:
                                              {false, false, false, false}}}; // | | | | |
 
 public:
-    explicit DOT_Block() : Block()
+    explicit DOT_Block() : Block(0)
     {
     }
 

@@ -1,3 +1,4 @@
+#include <spdlog/spdlog.h>
 #include <SFML/Audio.hpp>
 #include <iostream>
 #include <math.h>
@@ -5,10 +6,12 @@
 #include "game.h"
 #include "global.h"
 
-Game::Game() : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES), field_description_(FieldDescription("../res/standard_field.txt"))
+Game::Game(const FieldDescription &field_description) : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
 {
     font_.openFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
     sm_ = std::make_shared<SoundManager>();
+
+    field_ = std::make_shared<Field>(field_description);
 
     player_ = std::make_shared<PlayerProfile>();
     player_->load();
@@ -23,14 +26,16 @@ bool Game::is_running() const
 
 void Game::start_new_game()
 {
+    spdlog::info("Starting new game ...");
+
     is_game_over_ = false;
     score_ = 0;
     nr_of_lines_ = 0;
 
     level_ = std::make_shared<Level_1>();
     level_event_countdown_ = level_->event_countdown_in_seconds();
-    // field_ = std::make_shared<Field>();
-    field_ = std::make_shared<Field>(field_description_);
+
+    field_->reset();
     field_->add_new_block();
     // sm_->play_level_music(level_->get_music());
 }
@@ -182,24 +187,6 @@ void Game::game_over()
     player_->update_highlines(nr_of_lines_);
     is_game_over_ = true;
 }
-
-// void Game::display(const UI &ui) const
-// {
-//     if (is_game_over_)
-//     {
-//         ui.render_gameover();
-//     }
-//     else
-//     {
-//         field_->display(ui);
-//         player_->display(ui);
-//         ui.render_scoreboard(level_->get_number(), score_, nr_of_lines_);
-//         if (level_event_countdown_ > 0)
-//         {
-//             ui.render_level_countdown(level_clock_.getElapsedTime().asSeconds(), level_event_countdown_);
-//         }
-//     }
-// }
 
 void Game::display(const std::shared_ptr<sf::RenderWindow> &window) const
 {
