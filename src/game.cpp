@@ -1,22 +1,37 @@
 #include <spdlog/spdlog.h>
 #include <SFML/Audio.hpp>
-#include <iostream>
 #include <math.h>
+#include <memory>
 
 #include "game.h"
 #include "global.h"
+#include "state.h"
 
 Game::Game(const FieldDescription &field_description) : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
 {
-    font_.openFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
+    bool ok = font_.openFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
     sm_ = std::make_shared<SoundManager>();
-
-    field_ = std::make_shared<Field>(field_description);
 
     player_ = std::make_shared<PlayerProfile>();
     player_->load();
 
-    start_new_game();
+    field_ = std::make_shared<Field>(field_description);
+}
+
+void Game::init()
+{
+    StateMenu::init(*this);
+    StatePlaying::init(*this);
+    StatePaused::init(*this);
+    StateGameOver::init(*this);
+
+    state_ = StateMenu::get_instance();
+}
+
+void Game::set_state(const std::shared_ptr<State> &state)
+{
+    spdlog::info("State change: {} -> {}", state_->get_name(), state->get_name());
+    state_ = state;
 }
 
 bool Game::is_running() const
@@ -42,99 +57,55 @@ void Game::start_new_game()
 
 void Game::update(std::optional<sf::Event> event)
 {
-    if (event)
-    {
-        if (event->is<sf::Event::Closed>())
-        {
-            is_running_ = false;
-        }
-        else
-        {
-            const auto e = event->getIf<sf::Event::KeyPressed>();
-            if (e != nullptr)
-            {
-                if (e->scancode == sf::Keyboard::Scancode::Escape)
-                {
-                    is_running_ = false;
-                }
-                else if (!is_game_over_)
-                {
-                    if (e->scancode == sf::Keyboard::Scancode::P)
-                    {
-                        is_paused_ ^= true;
-                        block_clock_.isRunning() ? block_clock_.stop() : block_clock_.start();
-                        level_clock_.isRunning() ? level_clock_.stop() : level_clock_.start();
-                    }
-                    else if (!is_paused_)
-                    {
-                        switch (e->scancode)
-                        {
-                        case sf::Keyboard::Scancode::Down:
-                        {
-                            GameState state;
-                            if (e->control)
-                            {
-                                state = field_->drop_block();
-                            }
-                            else
-                            {
-                                state = field_->down_block();
-                            }
+    state_->update(*this, event);
+}
 
-                            process_game_state(state);
-                            break;
-                        }
-                        case sf::Keyboard::Scancode::Left:
-                        {
-                            field_->left_block();
-                            break;
-                        }
-                        case sf::Keyboard::Scancode::Right:
-                        {
-                            field_->right_block();
-                            break;
-                        }
-                        case sf::Keyboard::Scancode::Up:
-                        {
-                            field_->up_block();
-                            break;
-                        }
-                        }
-                    }
-                }
-                else // is game over
-                {
-                    switch (e->scancode)
-                    {
-                    case sf::Keyboard::Scancode::Y:
-                    {
-                        start_new_game();
-                        break;
-                    }
-                    case sf::Keyboard::Scancode::N:
-                    {
-                        is_running_ = false;
-                        player_->save();
-                        break;
-                    }
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        if (block_clock_.getElapsedTime().asSeconds() >= level_->speed())
-        {
-            if (!is_game_over_ && !is_paused_)
-            {
-                GameState state = field_->down_block();
-                process_game_state(state);
-            }
-            block_clock_.restart();
-        }
-    }
+void Game::drop_block()
+{
+    GameState state = field_->drop_block();
 
+    // TODO: still needed ?
+    process_game_state(state);
+}
+
+void Game::down_block()
+{
+    GameState state = field_->down_block();
+
+    // TODO: still needed ?
+    process_game_state(state);
+}
+
+void Game::left_block()
+{
+    field_->left_block();
+}
+
+void Game::right_block()
+{
+    field_->right_block();
+}
+
+void Game::up_block()
+{
+    field_->up_block();
+}
+
+void Game::progress_game()
+{
+    if (block_clock_.getElapsedTime().asSeconds() >= level_->speed())
+    {
+        GameState state = field_->down_block();
+
+        // TODO: check for refactoring ?
+        process_game_state(state);
+
+        block_clock_.restart();
+    }
+}
+
+void Game::check_level_clock()
+{
     if (level_event_countdown_ > 0)
     {
         auto t = level_clock_.getElapsedTime().asSeconds();
@@ -185,28 +156,59 @@ void Game::game_over()
 {
     player_->update_highscore(score_);
     player_->update_highlines(nr_of_lines_);
-    is_game_over_ = true;
+    set_state(StateGameOver::get_instance());
 }
 
-void Game::display(const std::shared_ptr<sf::RenderWindow> &window) const
+void Game::start()
 {
-    if (is_game_over_)
+    // spdlog::info("start");
+    start_new_game();
+    set_state(StatePlaying::get_instance());
+}
+
+void Game::stop()
+{
+    player_->save();
+    set_state(StateMenu::get_instance());
+}
+
+void Game::resume()
+{
+    // block_clock_.isRunning() ? block_clock_.stop() : block_clock_.start();
+    //  level_clock_.isRunning() ? level_clock_.stop() : level_clock_.start();
+    set_state(StatePlaying::get_instance());
+}
+
+void Game::pause()
+{
+    // block_clock_.isRunning() ? block_clock_.stop() : block_clock_.start();
+    // level_clock_.isRunning() ? level_clock_.stop() : level_clock_.start();
+    set_state(StatePaused::get_instance());
+}
+
+void Game::exit()
+{
+    spdlog::info("exit");
+    is_running_ = false;
+}
+
+void Game::display(const std::shared_ptr<sf::RenderWindow> window) const
+{
+    state_->display(window);
+}
+
+void Game::display_playing_state(const std::shared_ptr<sf::RenderWindow> window) const
+{
+    field_->display(window);
+    player_->display(window);
+    render_scoreboard(window);
+    if (level_event_countdown_ > 0)
     {
-        render_gameover(window);
-    }
-    else
-    {
-        field_->display(window);
-        player_->display(window);
-        render_scoreboard(window);
-        if (level_event_countdown_ > 0)
-        {
-            render_level_countdown(window);
-        }
+        render_level_countdown(window);
     }
 }
 
-void Game::render_gameover(const std::shared_ptr<sf::RenderWindow> window) const
+void Game::display_gameover_state(const std::shared_ptr<sf::RenderWindow> window) const
 {
     sf::Text gameover_text(font_, "G A M E     O V E R\nnew game (y/n)", 30);
 

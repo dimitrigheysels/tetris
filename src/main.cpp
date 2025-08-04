@@ -20,16 +20,17 @@ int main()
         exit(1);
     }
 
-    Game game(field_description);
+    std::shared_ptr<Game> game = std::make_shared<Game>(field_description);
+    game->init();
 
     // game loop
-    while (game.is_running())
+    while (game->is_running())
     {
         auto event = window->pollEvent();
-        game.update(event);
+        game->update(event);
 
         window->clear();
-        game.display(window);
+        game->display(window);
         window->display();
     }
 

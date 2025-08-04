@@ -7,10 +7,14 @@
 #include "field.h"
 #include "level.h"
 #include "sound_manager.h"
+#include "menu.h"
+#include "state.h"
 
 class Game : public std::enable_shared_from_this<Game>
 {
 private:
+    std::shared_ptr<State> state_;
+
     sf::Clock level_clock_;
     sf::Clock block_clock_;
 
@@ -33,8 +37,6 @@ private:
 
     sf::Font font_;
 
-    // FieldDescription field_description_;
-
     void process_game_state(const GameState &state);
 
     void render_gameover(const std::shared_ptr<sf::RenderWindow> window) const;
@@ -44,16 +46,36 @@ private:
 public:
     Game(const FieldDescription &field_description);
 
+    void init();
+
+    void set_state(const std::shared_ptr<State> &state);
+
     bool is_running() const;
 
     void start_new_game();
 
     void update(std::optional<sf::Event> event);
 
+    void drop_block();
+    void down_block();
+    void left_block();
+    void right_block();
+    void up_block();
+    void progress_game();
+    void check_level_clock();
+
     void update_score(int nr_of_full_lines);
     void update_level();
+    bool is_game_over() const;
     void game_over();
 
-    // void display(const UI &ui) const;
-    void display(const std::shared_ptr<sf::RenderWindow> &window) const;
+    void start();
+    void stop();
+    void resume();
+    void pause();
+    void exit();
+
+    void display(const std::shared_ptr<sf::RenderWindow> window) const;
+    void display_playing_state(const std::shared_ptr<sf::RenderWindow> window) const;
+    void display_gameover_state(const std::shared_ptr<sf::RenderWindow> window) const;
 };

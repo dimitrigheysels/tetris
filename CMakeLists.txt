@@ -30,7 +30,7 @@ FetchContent_MakeAvailable(spdlog SFML)
 #add_compile_options(-g)
 #add_compile_options(-std=c++20)
 
-add_executable(MyTetris src/main.cpp src/game.cpp src/player_profile.cpp src/field.cpp src/tile.cpp src/block.cpp src/level.cpp src/sound_manager.cpp)
+add_executable(MyTetris src/main.cpp src/game.cpp src/player_profile.cpp src/field.cpp src/tile.cpp src/block.cpp src/level.cpp src/sound_manager.cpp src/menu.cpp src/state.cpp src/state_gameover.cpp src/state_menu.cpp src/state_paused.cpp src/state_playing.cpp)
 
 
 target_include_directories(MyTetris PUBLIC "${CMAKE_CURRENT_LIST_DIR}/build/_deps/spdlog-src/include")

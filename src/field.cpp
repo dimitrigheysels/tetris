@@ -132,7 +132,7 @@ Field::Field(const FieldDescription &field_description) : Field()
 
 void Field::reset()
 {
-    for (int row = 0; row < MAX_ROWS; row++)
+    for (int row = 0; row < MAX_ROWS + 1; row++)
     {
         for (int col = 0; col < MAX_COLS; col++)
         {
@@ -499,6 +499,7 @@ int Field::check_full_lines(int from_row, int *full_line_indexes) const
 
 bool Field::check_full_line(int row) const
 {
+    // from first boundary tile in row to last boundary tile in row
     for (int col = 1; col < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; col++)
     {
         if (!(tiles_[row][col]->is_fixed() || tiles_[row][col]->is_boundary()))
