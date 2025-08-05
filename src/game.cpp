@@ -6,10 +6,11 @@
 #include "game.h"
 #include "global.h"
 #include "state.h"
+#include "resource_manager.hpp"
 
 Game::Game(const FieldDescription &field_description) : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
 {
-    bool ok = font_.openFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
+    // bool ok = font_.openFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
     sm_ = std::make_shared<SoundManager>();
 
     player_ = std::make_shared<PlayerProfile>();
@@ -57,7 +58,7 @@ void Game::start_new_game()
 
 void Game::update(std::optional<sf::Event> event)
 {
-    state_->update(*this, event);
+    state_->update(event);
 }
 
 void Game::drop_block()
@@ -233,7 +234,7 @@ void Game::render_scoreboard(const std::shared_ptr<sf::RenderWindow> window) con
     ss << "# lines: " << nr_of_lines_ << std::endl;
     ss << "score: " << score_ << std::endl;
 
-    sf::Text score_text(font_, ss.str(), 12);
+    sf::Text score_text(*ResourceManager::get_instance()->get_font("default_font"), ss.str(), 12);
 
     score_text.setPosition({scoreboard.getPosition().x + 10, scoreboard.getPosition().y + 10});
 

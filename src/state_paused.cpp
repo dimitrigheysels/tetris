@@ -30,7 +30,7 @@ std::string_view StatePaused::get_name() const
     return "PAUSED";
 }
 
-void StatePaused::update(Game &game, std::optional<sf::Event> input_event)
+void StatePaused::update(std::optional<sf::Event> input_event)
 {
     if (input_event)
     {
@@ -41,12 +41,12 @@ void StatePaused::update(Game &game, std::optional<sf::Event> input_event)
             {
             case sf::Keyboard::Scancode::Escape:
             {
-                game_.set_state(StateMenu::get_instance());
+                game_.stop();
                 break;
             }
             case sf::Keyboard::Scancode::P:
             {
-                game.resume();
+                game_.resume();
                 break;
             }
             }

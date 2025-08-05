@@ -67,13 +67,15 @@ public:
     void update_score(int nr_of_full_lines);
     void update_level();
     bool is_game_over() const;
-    void game_over();
+    
+    
 
     void start();
     void stop();
     void resume();
     void pause();
     void exit();
+    void game_over();
 
     void display(const std::shared_ptr<sf::RenderWindow> window) const;
     void display_playing_state(const std::shared_ptr<sf::RenderWindow> window) const;

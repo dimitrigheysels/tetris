@@ -28,7 +28,7 @@ std::string_view StateGameOver::get_name() const
     return "GAME OVER";
 }
 
-void StateGameOver::update(Game &game, std::optional<sf::Event> input_event)
+void StateGameOver::update(std::optional<sf::Event> input_event)
 {
     if (input_event)
     {

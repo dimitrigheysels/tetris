@@ -30,7 +30,7 @@ std::string_view StatePlaying::get_name() const
     return "PLAYING";
 }
 
-void StatePlaying::update(Game &game, std::optional<sf::Event> input_event)
+void StatePlaying::update(std::optional<sf::Event> input_event)
 {
     if (input_event)
     {
@@ -46,7 +46,7 @@ void StatePlaying::update(Game &game, std::optional<sf::Event> input_event)
             }
             case sf::Keyboard::Scancode::P:
             {
-                game.pause();
+                game_.pause();
                 break;
             }
             case sf::Keyboard::Scancode::Space:

@@ -41,7 +41,7 @@ std::string_view StateMenu::get_name() const
     return "MENU";
 }
 
-void StateMenu::update(Game &game, std::optional<sf::Event> input_event)
+void StateMenu::update(std::optional<sf::Event> input_event)
 {
     if (input_event)
     {

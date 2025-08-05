@@ -1,0 +1,8 @@
+{
+    "images": {
+        "title": "../res/tetris_black.png"
+    },
+    "fonts": {
+        "default_font": "/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf"
+    }
+}

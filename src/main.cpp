@@ -2,15 +2,20 @@
 #include <spdlog/spdlog.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <nlohmann/json.hpp>
 
 #include "game.h"
 #include "sound_manager.h"
+#include "resource_manager.hpp"
 
 int main()
 {
     spdlog::set_level(spdlog::level::debug);
 
-    std::shared_ptr<sf::RenderWindow> window = std::make_shared<sf::RenderWindow>(sf::VideoMode({1280, 1024}), "MyTetris");
+    ResourceManager::Init("../res/resources.json");
+
+    std::shared_ptr<sf::RenderWindow>
+        window = std::make_shared<sf::RenderWindow>(sf::VideoMode({1280, 1024}), "MyTetris");
 
     FieldDescription field_description("../res/standard_field.txt");
     // FieldDescription field_description("../res/piramid_field.txt");
