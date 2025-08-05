@@ -211,7 +211,7 @@ void Game::display_playing_state(const std::shared_ptr<sf::RenderWindow> window)
 
 void Game::display_gameover_state(const std::shared_ptr<sf::RenderWindow> window) const
 {
-    sf::Text gameover_text(font_, "G A M E     O V E R\nnew game (y/n)", 30);
+    sf::Text gameover_text(*ResourceManager::get_instance()->get_font("default_font"), "G A M E     O V E R\nnew game (y/n)", 30);
 
     int gameover_textwidth = gameover_text.getLocalBounds().size.x;
     int gameover_textheight = gameover_text.getLocalBounds().size.y;

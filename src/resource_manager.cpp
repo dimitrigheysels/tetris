@@ -6,7 +6,7 @@
 
 void ResourceManager::Init(std::filesystem::path path)
 {
-    spdlog::info("Initializing resource manager...");
+    spdlog::info("Initializing resource manager ...");
     if (ResourceManager::instance_ == nullptr)
     {
         ResourceManager::instance_ = std::shared_ptr<ResourceManager>(new ResourceManager(path));
