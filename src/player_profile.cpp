@@ -1,11 +1,12 @@
 #include <fstream>
 
 #include "player_profile.h"
+#include "resource_manager.hpp"
 #include "global.h"
 
 PlayerProfile::PlayerProfile() : highscore_(0)
 {
-    font_.openFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
+   
 }
 
 void PlayerProfile::update_highscore(int score)
@@ -39,7 +40,7 @@ void PlayerProfile::render_highscore(const std::shared_ptr<sf::RenderWindow> &wi
     ss << "player highscore: " << highscore_ << std::endl;
     ss << "player highlines " << highlines_ << std::endl;
 
-    sf::Text score_text(font_, ss.str(), 12);
+    sf::Text score_text(*ResourceManager::get_instance()->get_font("default_font"), ss.str(), 12);
     score_text.setPosition({scoreboard.getPosition().x + 10, scoreboard.getPosition().y + 10});
 
     score_text.setOutlineThickness(1);

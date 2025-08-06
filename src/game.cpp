@@ -8,9 +8,8 @@
 #include "state.h"
 #include "resource_manager.hpp"
 
-Game::Game(const FieldDescription &field_description) : is_running_(true), is_paused_(false), is_game_over_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
+Game::Game(const FieldDescription &field_description) : is_running_(true), is_paused_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
 {
-    // bool ok = font_.openFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf");
     sm_ = std::make_shared<SoundManager>();
 
     player_ = std::make_shared<PlayerProfile>();
@@ -44,7 +43,6 @@ void Game::start_new_game()
 {
     spdlog::info("Starting new game ...");
 
-    is_game_over_ = false;
     score_ = 0;
     nr_of_lines_ = 0;
 
@@ -253,7 +251,7 @@ void Game::render_level_countdown(const std::shared_ptr<sf::RenderWindow> window
     std::stringstream ss;
     ss << std::max(0, level_event_countdown_ - (int)level_clock_.getElapsedTime().asSeconds());
 
-    sf::Text countdown_text(font_, ss.str(), 32);
+    sf::Text countdown_text(*ResourceManager::get_instance()->get_font("default_font"), ss.str(), 32);
     int countdown_textwidth = countdown_text.getLocalBounds().size.x;
     int countdown_textheight = countdown_text.getLocalBounds().size.y;
 

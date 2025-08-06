@@ -51,11 +51,6 @@ void Menu::display(const std::shared_ptr<sf::RenderWindow> window)
     }
 
     window->draw(title_sprite);
-    // spdlog::info("{}", title_);
-    // for (auto item : items_)
-    // {
-    //     item->display(selected_sequence_nr_, window);
-    // }
 }
 
 MenuItem::MenuItem(int sequence_nr, const std::string &title, std::function<void()> action) : sequence_nr_(sequence_nr), title_(title), action_(action)

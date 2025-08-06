@@ -14,8 +14,6 @@ private:
     int highscore_;
     int highlines_;
 
-    sf::Font font_;
-
     void render_highscore(const std::shared_ptr<sf::RenderWindow> &window) const;
 
 public:

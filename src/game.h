@@ -20,7 +20,6 @@ private:
 
     bool is_running_;
     bool is_paused_;
-    bool is_game_over_;
 
     std::shared_ptr<Field> field_;
     std::shared_ptr<PlayerProfile> player_;
@@ -34,8 +33,6 @@ private:
     int next_nr_of_lines_bonus_;
 
     std::shared_ptr<SoundManager> sm_;
-
-    sf::Font font_;
 
     void process_game_state(const GameState &state);
 
@@ -66,10 +63,7 @@ public:
 
     void update_score(int nr_of_full_lines);
     void update_level();
-    bool is_game_over() const;
     
-    
-
     void start();
     void stop();
     void resume();

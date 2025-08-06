@@ -6,6 +6,8 @@ This repository contains a clone of the famous Tetris game.
 
 > SFML is used as graphics library (https://en.wikipedia.org/wiki/Simple_and_Fast_Multimedia_Library)
 
+> Nlohmann JSON is used as JSON library (https://json.nlohmann.me/)
+
 ## Overview
 
 Main.cpp
