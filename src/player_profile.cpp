@@ -1,5 +1,5 @@
-#include <fstream>
 #include <spdlog/spdlog.h>
+#include <fstream>
 
 #include "include/player_profile.h"
 #include "include/resource_manager.hpp"
@@ -25,10 +25,32 @@ void PlayerProfile::update_highlines(int lines)
     }
 }
 
+void PlayerProfile::load()
+{
+    spdlog::info("Loading player profile...");
+    std::ifstream in(PLAYER_PROFILE_PATH, std::ios::in | std::ios::binary);
+    in.read(reinterpret_cast<char *>(&highscore_), sizeof(highscore_));
+    in.read(reinterpret_cast<char *>(&highlines_), sizeof(highlines_));
+    in.close();
+}
+
+void PlayerProfile::save() const
+{
+    spdlog::info("Saving player profile...");
+    std::ofstream out(PLAYER_PROFILE_PATH, std::fstream::out | std::fstream::binary | std::fstream::trunc);
+    out.write(reinterpret_cast<const char *>(&highscore_), sizeof(highscore_));
+    out.write(reinterpret_cast<const char *>(&highlines_), sizeof(highlines_));
+    out.flush();
+    out.close();
+}
+
 void PlayerProfile::display(const std::shared_ptr<sf::RenderWindow> &window) const
 {
     render_highscore(window);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// P R I V A T E     F U N C T I O N S ////////////////////////
 
 void PlayerProfile::render_highscore(const std::shared_ptr<sf::RenderWindow> &window) const
 {
@@ -47,23 +69,4 @@ void PlayerProfile::render_highscore(const std::shared_ptr<sf::RenderWindow> &wi
 
     window->draw(scoreboard);
     window->draw(score_text);
-}
-
-void PlayerProfile::save() const
-{
-    spdlog::info("Saving player profile...");
-    std::ofstream out(player_profile_path, std::fstream::out | std::fstream::binary | std::fstream::trunc);
-    out.write(reinterpret_cast<const char *>(&highscore_), sizeof(highscore_));
-    out.write(reinterpret_cast<const char *>(&highlines_), sizeof(highlines_));
-    out.flush();
-    out.close();
-}
-
-void PlayerProfile::load()
-{
-    spdlog::info("Loading player profile...");
-    std::ifstream in(player_profile_path, std::ios::in | std::ios::binary);
-    in.read(reinterpret_cast<char *>(&highscore_), sizeof(highscore_));
-    in.read(reinterpret_cast<char *>(&highlines_), sizeof(highlines_));
-    in.close();
 }

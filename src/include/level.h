@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <experimental/random>
 
 // levels:
 //  1. normal
@@ -18,90 +19,79 @@ class Field;
 class Level
 {
 public:
-    Level() {}
-    virtual ~Level() {};
+    Level() = default;
+    virtual ~Level() = default;
 
-    virtual int get_number() const = 0;
-    virtual std::shared_ptr<Level> next_level() const = 0;
+    virtual inline int get_number() const = 0;
+    virtual inline float speed() const = 0;
+    virtual inline int event_countdown_in_seconds() const = 0;
+    virtual inline std::shared_ptr<Level> next_level() const = 0;
+
     virtual void do_something_with_field(const std::shared_ptr<Field> field) const = 0;
-    virtual float speed() const = 0;
-    virtual int event_countdown_in_seconds() const = 0;
-};
-
-class Level_1 : public Level
-{
-public:
-    Level_1() : Level() {}
-    ~Level_1() {}
-
-    int get_number() const override;
-    std::shared_ptr<Level> next_level() const override;
-    void do_something_with_field(const std::shared_ptr<Field> field) const override;
-    float speed() const override;
-    int event_countdown_in_seconds() const override;
-};
-
-class Level_2 : public Level
-{
-public:
-    Level_2() : Level() {}
-    ~Level_2() {}
-
-    int get_number() const override;
-    std::shared_ptr<Level> next_level() const override;
-    void do_something_with_field(const std::shared_ptr<Field> field) const override;
-    float speed() const override;
-    int event_countdown_in_seconds() const override;
-};
-
-class Level_3 : public Level
-{
-public:
-    Level_3() : Level() {}
-    ~Level_3() {}
-
-    int get_number() const override;
-    std::shared_ptr<Level> next_level() const override;
-    void do_something_with_field(const std::shared_ptr<Field> field) const override;
-    float speed() const override;
-    int event_countdown_in_seconds() const override;
-};
-
-class Level_4 : public Level
-{
-public:
-    Level_4() : Level() {}
-    ~Level_4() {}
-
-    int get_number() const override;
-    std::shared_ptr<Level> next_level() const override;
-    void do_something_with_field(const std::shared_ptr<Field> field) const override;
-    float speed() const override;
-    int event_countdown_in_seconds() const override;
-};
-
-class Level_5 : public Level
-{
-public:
-    Level_5() : Level() {}
-    ~Level_5() {}
-
-    int get_number() const override;
-    std::shared_ptr<Level> next_level() const override;
-    void do_something_with_field(const std::shared_ptr<Field> field) const override;
-    float speed() const override;
-    int event_countdown_in_seconds() const override;
 };
 
 class Level_6 : public Level
 {
 public:
-    Level_6() : Level() {}
-    ~Level_6() {}
+    inline int get_number() const override { return 6; }
+    inline float speed() const override { return 0.5f; };
+    inline int event_countdown_in_seconds() const override { return std::experimental::randint(10, 20); }
+    inline std::shared_ptr<Level> next_level() const override { return std::make_shared<Level_6>(); }
 
-    int get_number() const override;
-    std::shared_ptr<Level> next_level() const override;
     void do_something_with_field(const std::shared_ptr<Field> field) const override;
-    float speed() const override;
-    int event_countdown_in_seconds() const override;
+};
+
+class Level_5 : public Level
+{
+public:
+    inline int get_number() const override { return 5; }
+    inline float speed() const override { return 0.5f; };
+    inline int event_countdown_in_seconds() const override { return std::experimental::randint(15, 25); }
+    inline std::shared_ptr<Level> next_level() const override { return std::make_shared<Level_6>(); }
+
+    void do_something_with_field(const std::shared_ptr<Field> field) const override;
+};
+
+class Level_4 : public Level
+{
+public:
+    inline int get_number() const override { return 4; }
+    inline float speed() const override { return 0.5f; };
+    inline int event_countdown_in_seconds() const override { return std::experimental::randint(20, 30); }
+    inline std::shared_ptr<Level> next_level() const override { return std::make_shared<Level_5>(); }
+
+    void do_something_with_field(const std::shared_ptr<Field> field) const override;
+};
+
+class Level_3 : public Level
+{
+public:
+    inline int get_number() const override { return 3; }
+    inline float speed() const override { return 0.15f; }
+    inline int event_countdown_in_seconds() const override { return 0; }
+    inline std::shared_ptr<Level> next_level() const override { return std::make_shared<Level_4>(); }
+
+    void do_something_with_field(const std::shared_ptr<Field> field) const override;
+};
+
+class Level_2 : public Level
+{
+public:
+    inline int get_number() const override { return 2; }
+    inline float speed() const override { return 0.3f; };
+    inline int event_countdown_in_seconds() const override { return 0; }
+    inline std::shared_ptr<Level> next_level() const override { return std::make_shared<Level_3>(); }
+
+    void do_something_with_field(const std::shared_ptr<Field> field) const override;
+};
+
+class Level_1 : public Level
+{
+public:
+    inline int get_number() const override { return 1; }
+    inline float speed() const override { return 0.5f; };
+    inline int event_countdown_in_seconds() const override { return 0; }
+    inline std::shared_ptr<Level> next_level() const override { return std::make_shared<Level_2>(); }
+
+    void do_something_with_field(const std::shared_ptr<Field> field) const override;
 };

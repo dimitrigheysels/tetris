@@ -14,6 +14,7 @@ private:
 
 public:
     Audio(std::filesystem::path path);
+
     void play();
 };
 
@@ -32,7 +33,6 @@ private:
 public:
     ResourceManager(const ResourceManager &) = delete;
     void operator=(const ResourceManager &) = delete;
-    ~ResourceManager() {};
 
     static void init(std::filesystem::path path);
     static std::shared_ptr<ResourceManager> &get_instance();

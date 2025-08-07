@@ -1,4 +1,3 @@
-#include <spdlog/spdlog.h>
 
 #include "include/menu.h"
 #include "include/resource_manager.hpp"

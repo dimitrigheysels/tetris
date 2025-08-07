@@ -24,6 +24,9 @@ constexpr int SCORE_NEXT_LEVEL = 100;
 constexpr int BONUS_EVERY_LINES = 100;
 constexpr int BONUS_LINES = 4;
 
+// ======== OTHER ========
+const std::filesystem::path PLAYER_PROFILE_PATH = "./tetris.conf";
+
 struct Evaluation
 {
     bool game_over{false};

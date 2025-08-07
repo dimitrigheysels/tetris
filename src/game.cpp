@@ -38,41 +38,15 @@ void Game::init(const FieldDescription &field_description)
     state_ = StateMenu::get_instance();
 }
 
+bool Game::update(const std::optional<sf::Event> &event)
+{
+    return state_->update(event);
+}
+
 void Game::set_state(const std::shared_ptr<State> &state)
 {
     spdlog::debug("State change: {} -> {}", state_->get_name(), state->get_name());
     state_ = state;
-}
-
-bool Game::is_running() const
-{
-    return is_running_;
-}
-
-void Game::start_new_game()
-{
-    spdlog::info("Starting new game ...");
-
-    score_ = 0;
-    nr_of_lines_ = 0;
-
-    level_ = std::make_shared<Level_4>();
-    level_event_countdown_ = level_->event_countdown_in_seconds();
-
-    field_->reset();
-    field_->add_new_block();
-
-    is_started_ = true;
-}
-
-bool Game::is_started() const
-{
-    return is_started_;
-}
-
-bool Game::update(const std::optional<sf::Event> &event)
-{
-    return state_->update(event);
 }
 
 void Game::drop_block()
@@ -164,13 +138,6 @@ void Game::update_level()
     }
 }
 
-void Game::game_over()
-{
-    player_->update_highscore(score_);
-    player_->update_highlines(nr_of_lines_);
-    set_state(StateGameOver::get_instance());
-}
-
 void Game::start()
 {
     start_new_game();
@@ -221,6 +188,13 @@ void Game::exit()
     is_running_ = false;
 }
 
+void Game::game_over()
+{
+    player_->update_highscore(score_);
+    player_->update_highlines(nr_of_lines_);
+    set_state(StateGameOver::get_instance());
+}
+
 void Game::display(const std::shared_ptr<sf::RenderWindow> window) const
 {
     state_->display(window);
@@ -249,6 +223,61 @@ void Game::display_gameover_state(const std::shared_ptr<sf::RenderWindow> window
     gameover_text.setOutlineThickness(3);
 
     window->draw(gameover_text);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// P R I V A T E     F U N C T I O N S ////////////////////////
+
+void Game::start_new_game()
+{
+    spdlog::info("Starting new game ...");
+
+    score_ = 0;
+    nr_of_lines_ = 0;
+
+    level_ = std::make_shared<Level_4>();
+    level_event_countdown_ = level_->event_countdown_in_seconds();
+
+    field_->reset();
+    field_->add_new_block();
+
+    is_started_ = true;
+}
+
+void Game::process_game_evaluation(const Evaluation &evaluation)
+{
+    if (evaluation.game_over)
+    {
+        game_over();
+        return;
+    }
+
+    if (evaluation.new_block)
+    {
+        // field should only be changed (according to level) when new block is created
+        if (level_event_countdown_ > 0 && level_clock_.getElapsedTime().asSeconds() >= level_event_countdown_)
+        {
+            // calculate next interval and show the clock
+            level_event_countdown_ = level_->event_countdown_in_seconds();
+            level_->do_something_with_field(field_);
+            level_clock_.restart();
+        }
+    }
+
+    if (evaluation.nr_of_full_lines > 0)
+    {
+        update_score(evaluation.nr_of_full_lines);
+
+        // clear lines every X lines (but do not clear whole field)
+        if (nr_of_lines_ > next_nr_of_lines_bonus_)
+        {
+            field_->clear_lines(BONUS_LINES);
+            next_nr_of_lines_bonus_ += BONUS_EVERY_LINES;
+        }
+
+        update_level();
+        return;
+    }
 }
 
 void Game::render_scoreboard(const std::shared_ptr<sf::RenderWindow> window) const
@@ -292,40 +321,4 @@ void Game::render_level_countdown(const std::shared_ptr<sf::RenderWindow> window
 
     window->draw(countdown_timer);
     window->draw(countdown_text);
-}
-
-void Game::process_game_evaluation(const Evaluation &evaluation)
-{
-    if (evaluation.game_over)
-    {
-        game_over();
-        return;
-    }
-
-    if (evaluation.new_block)
-    {
-        // field should only be changed (according to level) when new block is created
-        if (level_event_countdown_ > 0 && level_clock_.getElapsedTime().asSeconds() >= level_event_countdown_)
-        {
-            // calculate next interval and show the clock
-            level_event_countdown_ = level_->event_countdown_in_seconds();
-            level_->do_something_with_field(field_);
-            level_clock_.restart();
-        }
-    }
-
-    if (evaluation.nr_of_full_lines > 0)
-    {
-        update_score(evaluation.nr_of_full_lines);
-
-        // clear lines every X lines (but do not clear whole field)
-        if (nr_of_lines_ > next_nr_of_lines_bonus_)
-        {
-            field_->clear_lines(BONUS_LINES);
-            next_nr_of_lines_bonus_ += BONUS_EVERY_LINES;
-        }
-
-        update_level();
-        return;
-    }
 }

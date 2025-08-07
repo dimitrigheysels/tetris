@@ -30,10 +30,9 @@ FetchContent_MakeAvailable(spdlog)
 FetchContent_MakeAvailable(SFML)
 FetchContent_MakeAvailable(json)
 
+# enable sourcelocation pattern in (DEBUG) loglines (use SPDLOG_LOGGER_DEBUG macro)
+add_compile_definitions(SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG)
 
-#add_compile_options(-g)
-#add_compile_options(-std=c++20)
-
-add_executable(MyTetris src/main.cpp src/game.cpp src/player_profile.cpp src/field.cpp src/tile.cpp src/block.cpp src/level.cpp src/sound_manager.cpp src/menu.cpp src/state.cpp src/state_gameover.cpp src/state_menu.cpp src/state_playing.cpp src/resource_manager.cpp)
+add_executable(MyTetris src/main.cpp src/game.cpp src/player_profile.cpp src/field.cpp src/field_description.cpp src/tile.cpp src/block.cpp src/level.cpp  src/menu.cpp src/state.cpp src/state_gameover.cpp src/state_menu.cpp src/state_playing.cpp src/resource_manager.cpp)
 
 target_link_libraries(MyTetris PRIVATE nlohmann_json::nlohmann_json spdlog::spdlog SFML::Graphics SFML::Window SFML::System SFML::Audio)

@@ -5,11 +5,13 @@
 #include <nlohmann/json.hpp>
 
 #include "include/game.h"
+#include "include/field_description.h"
 #include "include/resource_manager.hpp"
 
 int main()
 {
     spdlog::set_level(spdlog::level::debug);
+    spdlog::set_pattern("%Y-%m-%d %H:%M:%S.%e %l (%@): %v");
 
     ResourceManager::init("../res/resources.json");
 
@@ -18,7 +20,6 @@ int main()
     window->setFramerateLimit(30);
 
     FieldDescription field_description("../res/standard_field.txt");
-    // FieldDescription field_description("../res/piramid_field.txt");
 
     std::shared_ptr<Game> game = std::make_shared<Game>();
     game->init(field_description);

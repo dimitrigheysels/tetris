@@ -6,32 +6,29 @@
 #include "player_profile.h"
 #include "field.h"
 #include "level.h"
-#include "sound_manager.h"
 #include "menu.h"
 #include "state.h"
 
 class Game : public std::enable_shared_from_this<Game>
 {
 private:
-    std::shared_ptr<State> state_;
-
-    sf::Clock level_clock_;
-    sf::Clock block_clock_;
-
     bool is_running_;
     bool is_started_;
 
+    std::shared_ptr<State> state_;
     std::shared_ptr<Field> field_;
     std::shared_ptr<PlayerProfile> player_;
+    std::shared_ptr<Level> level_;
+
+    sf::Clock block_clock_;
+    sf::Clock level_clock_;
 
     int score_;
     int nr_of_lines_;
-
-    std::shared_ptr<Level> level_;
     int level_event_countdown_;
-
     int next_nr_of_lines_bonus_;
 
+    void start_new_game();
     void process_game_evaluation(const Evaluation &evaluation);
 
     void render_gameover(const std::shared_ptr<sf::RenderWindow> window) const;
@@ -41,25 +38,23 @@ private:
 public:
     Game();
 
+    inline bool is_running() const { return is_running_; }
+    inline bool is_started() const { return is_started_; }
+
     void init(const FieldDescription &field_description);
 
-    void set_state(const std::shared_ptr<State> &state);
-
-    bool is_running() const;
-
-    void start_new_game();
-    bool is_started() const;
-
     bool update(const std::optional<sf::Event> &event);
+
+    void set_state(const std::shared_ptr<State> &state);
 
     void drop_block();
     void down_block();
     void left_block();
     void right_block();
     void up_block();
+
     void progress_game();
     void check_level_clock();
-
     void update_score(int nr_of_full_lines);
     void update_level();
 

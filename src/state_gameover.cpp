@@ -3,6 +3,9 @@
 #include "include/state.h"
 #include "include/game.h"
 
+/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////// S T A T I C    F U N C T I O N S /////////////////////////
+
 void StateGameOver::init(Game &game)
 {
     if (StateGameOver::instance_ == nullptr)
@@ -21,12 +24,8 @@ std::shared_ptr<StateGameOver> &StateGameOver::get_instance()
     return StateGameOver::instance_;
 }
 
-StateGameOver::StateGameOver(Game &game) : State(game) {}
-
-std::string_view StateGameOver::get_name() const
-{
-    return "GAME OVER";
-}
+/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////// P U B L I C    F U N C T I O N S /////////////////////////
 
 bool StateGameOver::update(const std::optional<sf::Event> &input_event)
 {
@@ -58,3 +57,8 @@ void StateGameOver::display(const std::shared_ptr<sf::RenderWindow> window) cons
 {
     game_.display_gameover_state(window);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// P R I V A T E     F U N C T I O N S ////////////////////////
+
+StateGameOver::StateGameOver(Game &game) : State(game) {}

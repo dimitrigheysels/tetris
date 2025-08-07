@@ -3,6 +3,9 @@
 #include "include/state.h"
 #include "include/game.h"
 
+/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////// S T A T I C    F U N C T I O N S /////////////////////////
+
 void StatePlaying::init(Game &game)
 {
     if (StatePlaying::instance_ == nullptr)
@@ -21,14 +24,8 @@ std::shared_ptr<StatePlaying> &StatePlaying::get_instance()
     return StatePlaying::instance_;
 }
 
-StatePlaying::StatePlaying(Game &game) : State(game)
-{
-}
-
-std::string_view StatePlaying::get_name() const
-{
-    return "PLAYING";
-}
+/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////// P U B L I C    F U N C T I O N S /////////////////////////
 
 bool StatePlaying::update(const std::optional<sf::Event> &input_event)
 {
@@ -93,4 +90,11 @@ bool StatePlaying::update(const std::optional<sf::Event> &input_event)
 void StatePlaying::display(const std::shared_ptr<sf::RenderWindow> window) const
 {
     game_.display_playing_state(window);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// P R I V A T E     F U N C T I O N S ////////////////////////
+
+StatePlaying::StatePlaying(Game &game) : State(game)
+{
 }
