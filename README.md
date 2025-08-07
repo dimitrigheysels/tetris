@@ -8,6 +8,8 @@ This repository contains a clone of the famous Tetris game.
 
 > Nlohmann JSON is used as JSON library (https://json.nlohmann.me/)
 
+> spdlog is used as logging library (https://github.com/gabime/spdlog/)
+
 ## Overview
 
 Main.cpp
@@ -65,11 +67,9 @@ for example: speed
 ## Features/ideas to be implemented
 
 - music
-- [done] soundeffects
+
 - better visuals (background, ...)
 - start menu : choose playfield, choose block-set, choose playerprofile, choose gametype
-- [done] more levels (goal is 9 levels) -> 6 levels
-- [done] user defined playfields
 - other set of blocks
 - other game-type: instead of full lines, combine 'truchet tiles' (all connected same color, or 4 in a vierkant, ...)
  
