@@ -1,7 +1,7 @@
 #include <spdlog/spdlog.h>
 
-#include "state.h"
-#include "game.h"
+#include "include/state.h"
+#include "include/game.h"
 
 void StatePaused::init(Game &game)
 {
@@ -30,7 +30,7 @@ std::string_view StatePaused::get_name() const
     return "PAUSED";
 }
 
-void StatePaused::update(std::optional<sf::Event> input_event)
+bool StatePaused::update(const std::optional<sf::Event> &input_event)
 {
     if (input_event)
     {
@@ -42,16 +42,18 @@ void StatePaused::update(std::optional<sf::Event> input_event)
             case sf::Keyboard::Scancode::Escape:
             {
                 game_.stop();
-                break;
+                return true;
             }
             case sf::Keyboard::Scancode::P:
             {
                 game_.resume();
-                break;
+                return true;
             }
             }
         }
     }
+
+    return false;
 }
 
 void StatePaused::display(const std::shared_ptr<sf::RenderWindow> window) const

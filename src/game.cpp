@@ -3,14 +3,14 @@
 #include <math.h>
 #include <memory>
 
-#include "game.h"
-#include "global.h"
-#include "state.h"
-#include "resource_manager.hpp"
+#include "include/game.h"
+#include "include/global.h"
+#include "include/state.h"
+#include "include/resource_manager.hpp"
 
 Game::Game(const FieldDescription &field_description) : is_running_(true), is_paused_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
 {
-    sm_ = std::make_shared<SoundManager>();
+    // sm_ = std::make_shared<SoundManager>();
 
     player_ = std::make_shared<PlayerProfile>();
     player_->load();
@@ -54,9 +54,9 @@ void Game::start_new_game()
     // sm_->play_level_music(level_->get_music());
 }
 
-void Game::update(std::optional<sf::Event> event)
+bool Game::update(const std::optional<sf::Event> &event)
 {
-    state_->update(event);
+    return state_->update(event);
 }
 
 void Game::drop_block()
@@ -123,19 +123,19 @@ void Game::update_score(int nr_of_full_lines)
     {
     case 1:
         score_ += SCORE_1_LINE;
-        sm_->play_destroy_1_line();
+        ResourceManager::get_instance()->get_sound("destroy_1_line")->play();
         break;
     case 2:
         score_ += SCORE_2_LINE;
-        sm_->play_destroy_2_lines();
+        ResourceManager::get_instance()->get_sound("destroy_2_line")->play();
         break;
     case 3:
         score_ += SCORE_3_LINE;
-        sm_->play_destroy_3_lines();
+        ResourceManager::get_instance()->get_sound("destroy_3_line")->play();
         break;
     case 4:
         score_ += SCORE_4_LINE;
-        sm_->play_destroy_4_lines();
+        ResourceManager::get_instance()->get_sound("destroy_4_line")->play();
         break;
     }
 }

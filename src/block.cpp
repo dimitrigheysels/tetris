@@ -1,7 +1,7 @@
 #include <experimental/random>
 
-#include "block.h"
-#include "tile.h"
+#include "include/block.h"
+#include "include/tile.h"
 
 void Block::set_fixed_in_field(const std::shared_ptr<Tile> (&tiles_)[MAX_ROWS + 1][MAX_COLS])
 {

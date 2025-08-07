@@ -1,7 +1,7 @@
 #include <spdlog/spdlog.h>
 
-#include "state.h"
-#include "game.h"
+#include "include/state.h"
+#include "include/game.h"
 
 void StatePlaying::init(Game &game)
 {
@@ -30,7 +30,7 @@ std::string_view StatePlaying::get_name() const
     return "PLAYING";
 }
 
-void StatePlaying::update(std::optional<sf::Event> input_event)
+bool StatePlaying::update(const std::optional<sf::Event> &input_event)
 {
     if (input_event)
     {
@@ -42,37 +42,37 @@ void StatePlaying::update(std::optional<sf::Event> input_event)
             case sf::Keyboard::Scancode::Escape:
             {
                 game_.stop();
-                break;
+                return true;
             }
             case sf::Keyboard::Scancode::P:
             {
                 game_.pause();
-                break;
+                return true;
             }
             case sf::Keyboard::Scancode::Space:
             {
                 game_.drop_block();
-                break;
+                return true;
             }
             case sf::Keyboard::Scancode::Down:
             {
                 game_.down_block();
-                break;
+                return true;
             }
             case sf::Keyboard::Scancode::Left:
             {
                 game_.left_block();
-                break;
+                return true;
             }
             case sf::Keyboard::Scancode::Right:
             {
                 game_.right_block();
-                break;
+                return true;
             }
             case sf::Keyboard::Scancode::Up:
             {
                 game_.up_block();
-                break;
+                return true;
             }
             }
         }
@@ -80,9 +80,12 @@ void StatePlaying::update(std::optional<sf::Event> input_event)
     else
     {
         game_.progress_game();
+        return true;
     }
 
     game_.check_level_clock();
+
+    return false;
 }
 
 void StatePlaying::display(const std::shared_ptr<sf::RenderWindow> window) const

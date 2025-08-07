@@ -1,8 +1,14 @@
 {
     "images": {
-        "title": "../res/tetris_black.png"
+        "title": "../res/images/tetris_black.png"
     },
     "fonts": {
         "default_font": "/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf"
+    },
+    "sounds": {
+        "destroy_1_line": "../res/sound/destroy_1_line.mp3",
+        "destroy_2_line": "../res/sound/destroy_2_lines.mp3",
+        "destroy_3_line": "../res/sound/destroy_3_lines.mp3",
+        "destroy_4_line": "../res/sound/destroy_4_lines.mp3"
     }
 }

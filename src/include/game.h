@@ -51,7 +51,7 @@ public:
 
     void start_new_game();
 
-    void update(std::optional<sf::Event> event);
+    bool update(const std::optional<sf::Event> &event);
 
     void drop_block();
     void down_block();
@@ -63,7 +63,7 @@ public:
 
     void update_score(int nr_of_full_lines);
     void update_level();
-    
+
     void start();
     void stop();
     void resume();

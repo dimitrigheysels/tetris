@@ -1,9 +1,9 @@
 #include <spdlog/spdlog.h>
 
-#include "menu.h"
-#include "resource_manager.hpp"
+#include "include/menu.h"
+#include "include/resource_manager.hpp"
 
-Menu::Menu(const std::string &title) : title_(title), selected_sequence_nr_(1)
+Menu::Menu(const std::string &title) : title_(title), selected_sequence_nr_(0)
 {
 }
 

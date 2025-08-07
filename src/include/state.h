@@ -17,7 +17,7 @@ public:
     virtual ~State() {};
 
     virtual std::string_view get_name() const = 0;
-    virtual void update(std::optional<sf::Event> input_event) = 0;
+    virtual bool update(const std::optional<sf::Event> &input_event) = 0;
     virtual void display(const std::shared_ptr<sf::RenderWindow> window) const = 0;
 };
 
@@ -40,7 +40,7 @@ public:
     static std::shared_ptr<StateMenu> &get_instance();
 
     std::string_view get_name() const override;
-    void update(std::optional<sf::Event> input_event) override;
+    bool update(const std::optional<sf::Event> &input_event) override;
     void display(const std::shared_ptr<sf::RenderWindow> window) const override;
 };
 
@@ -62,7 +62,7 @@ public:
     static std::shared_ptr<StatePlaying> &get_instance();
 
     std::string_view get_name() const override;
-    void update(std::optional<sf::Event> input_event) override;
+    bool update(const std::optional<sf::Event> &input_event) override;
     void display(const std::shared_ptr<sf::RenderWindow> window) const override;
 };
 
@@ -83,7 +83,7 @@ public:
     static std::shared_ptr<StatePaused> &get_instance();
 
     std::string_view get_name() const override;
-    void update(std::optional<sf::Event> input_event) override;
+    bool update(const std::optional<sf::Event> &input_event) override;
     void display(const std::shared_ptr<sf::RenderWindow> window) const override;
 };
 
@@ -104,6 +104,6 @@ public:
     static std::shared_ptr<StateGameOver> &get_instance();
 
     std::string_view get_name() const override;
-    void update(std::optional<sf::Event> input_event) override;
+    bool update(const std::optional<sf::Event> &input_event) override;
     void display(const std::shared_ptr<sf::RenderWindow> window) const override;
 };

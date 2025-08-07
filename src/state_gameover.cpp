@@ -1,7 +1,7 @@
 #include <spdlog/spdlog.h>
 
-#include "state.h"
-#include "game.h"
+#include "include/state.h"
+#include "include/game.h"
 
 void StateGameOver::init(Game &game)
 {
@@ -28,7 +28,7 @@ std::string_view StateGameOver::get_name() const
     return "GAME OVER";
 }
 
-void StateGameOver::update(std::optional<sf::Event> input_event)
+bool StateGameOver::update(const std::optional<sf::Event> &input_event)
 {
     if (input_event)
     {
@@ -40,16 +40,18 @@ void StateGameOver::update(std::optional<sf::Event> input_event)
             case sf::Keyboard::Scancode::Y:
             {
                 game_.start();
-                break;
+                return true;
             }
             case sf::Keyboard::Scancode::N:
             {
                 game_.stop();
-                break;
+                return true;
             }
             }
         }
     }
+
+    return false;
 }
 
 void StateGameOver::display(const std::shared_ptr<sf::RenderWindow> window) const

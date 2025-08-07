@@ -5,7 +5,7 @@
 #include <fstream>
 #include <ranges>
 
-#include "field.h"
+#include "include/field.h"
 
 FieldDescription::FieldDescription(const std::filesystem::path &path)
 {
@@ -485,7 +485,7 @@ int Field::check_full_lines(int from_row, int *full_line_indexes) const
     spdlog::debug("Checking for full lines from row {}", from_row);
 
     int nr_of_full_lines = 0;
-    for (int row = from_row; row < std::min(PLAYFIELD_TOP_ROW + PLAYFIELD_HEIGHT, from_row + BLOCK_LAYOUT_SIZE); row++)
+    for (int row = from_row; row < std::min(PLAYFIELD_TOP_ROW + /*PLAYFIELD_HEIGHT*/ 25, from_row + BLOCK_LAYOUT_SIZE); row++)
     {
         if (check_full_line(row))
         {
@@ -500,7 +500,7 @@ int Field::check_full_lines(int from_row, int *full_line_indexes) const
 bool Field::check_full_line(int row) const
 {
     // from first boundary tile in row to last boundary tile in row
-    for (int col = 1; col < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; col++)
+    for (int col = 1; col < PLAYFIELD_FIRST_COL + /*PLAYFIELD_WIDTH*/ 10; col++)
     {
         if (!(tiles_[row][col]->is_fixed() || tiles_[row][col]->is_boundary()))
         {

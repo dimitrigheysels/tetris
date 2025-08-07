@@ -1,12 +1,11 @@
 #include <fstream>
 
-#include "player_profile.h"
-#include "resource_manager.hpp"
-#include "global.h"
+#include "include/player_profile.h"
+#include "include/resource_manager.hpp"
+#include "include/global.h"
 
 PlayerProfile::PlayerProfile() : highscore_(0)
 {
-   
 }
 
 void PlayerProfile::update_highscore(int score)

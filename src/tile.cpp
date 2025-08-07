@@ -1,6 +1,6 @@
 
-#include "tile.h"
-#include "block.h"
+#include "include/tile.h"
+#include "include/block.h"
 
 void Tile::clear()
 {
