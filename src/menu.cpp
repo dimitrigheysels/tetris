@@ -13,7 +13,7 @@ void Menu::add_menuitem(const std::shared_ptr<MenuItem> item)
 
 void Menu::goto_next_menuitem()
 {
-    if (selected_sequence_nr_ < items_.size() - 1)
+    if (selected_sequence_nr_ < static_cast<int>(items_.size()) - 1)
     {
         while (!items_.at(++selected_sequence_nr_)->is_enabled())
             ;
@@ -32,12 +32,12 @@ void Menu::goto_previous_menuitem()
 void Menu::select_menuitem()
 {
     items_.at(selected_sequence_nr_)->execute();
-    selected_sequence_nr_ = 0;
+    reset_selection();
 }
 
 void Menu::reset_selection()
 {
-    selected_sequence_nr_ = -10;
+    selected_sequence_nr_ = -1;
     goto_next_menuitem();
 }
 
