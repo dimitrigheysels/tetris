@@ -8,21 +8,31 @@
 #include "include/state.h"
 #include "include/resource_manager.hpp"
 
-Game::Game(const FieldDescription &field_description) : is_running_(true), is_paused_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
+Game::Game() : is_running_(true), is_started_(false), score_(0), nr_of_lines_(0), next_nr_of_lines_bonus_(BONUS_EVERY_LINES)
 {
-    // sm_ = std::make_shared<SoundManager>();
-
+    spdlog::debug("Game::Game()");
+    field_ = std::make_shared<Field>();
     player_ = std::make_shared<PlayerProfile>();
-    player_->load();
-
-    field_ = std::make_shared<Field>(field_description);
 }
 
-void Game::init()
+void Game::init(const FieldDescription &field_description)
 {
+    spdlog::info("Initializing game ...");
+    try
+    {
+        field_->init(field_description);
+    }
+    catch (const std::exception &e)
+    {
+        // initialise with 'default' field-description
+        spdlog::error(e.what());
+        field_->init(field_description);
+    }
+
+    player_->load();
+
     StateMenu::init(*this);
     StatePlaying::init(*this);
-    StatePaused::init(*this);
     StateGameOver::init(*this);
 
     state_ = StateMenu::get_instance();
@@ -30,7 +40,7 @@ void Game::init()
 
 void Game::set_state(const std::shared_ptr<State> &state)
 {
-    spdlog::info("State change: {} -> {}", state_->get_name(), state->get_name());
+    spdlog::debug("State change: {} -> {}", state_->get_name(), state->get_name());
     state_ = state;
 }
 
@@ -46,12 +56,18 @@ void Game::start_new_game()
     score_ = 0;
     nr_of_lines_ = 0;
 
-    level_ = std::make_shared<Level_1>();
+    level_ = std::make_shared<Level_4>();
     level_event_countdown_ = level_->event_countdown_in_seconds();
 
     field_->reset();
     field_->add_new_block();
-    // sm_->play_level_music(level_->get_music());
+
+    is_started_ = true;
+}
+
+bool Game::is_started() const
+{
+    return is_started_;
 }
 
 bool Game::update(const std::optional<sf::Event> &event)
@@ -61,18 +77,16 @@ bool Game::update(const std::optional<sf::Event> &event)
 
 void Game::drop_block()
 {
-    GameState state = field_->drop_block();
+    Evaluation evaluation = field_->drop_block();
 
-    // TODO: still needed ?
-    process_game_state(state);
+    process_game_evaluation(evaluation);
 }
 
 void Game::down_block()
 {
-    GameState state = field_->down_block();
+    Evaluation evaluation = field_->down_block();
 
-    // TODO: still needed ?
-    process_game_state(state);
+    process_game_evaluation(evaluation);
 }
 
 void Game::left_block()
@@ -94,10 +108,9 @@ void Game::progress_game()
 {
     if (block_clock_.getElapsedTime().asSeconds() >= level_->speed())
     {
-        GameState state = field_->down_block();
+        Evaluation evaluation = field_->down_block();
 
-        // TODO: check for refactoring ?
-        process_game_state(state);
+        process_game_evaluation(evaluation);
 
         block_clock_.restart();
     }
@@ -109,9 +122,9 @@ void Game::check_level_clock()
     {
         auto t = level_clock_.getElapsedTime().asSeconds();
 
-        if (std::abs(t - level_event_countdown_) <= 0.002)
+        if (std::abs(level_event_countdown_ - t) <= 0.01)
         {
-            sm_->play_bell();
+            ResourceManager::get_instance()->get_sound("bell")->play();
         }
     }
 }
@@ -160,29 +173,46 @@ void Game::game_over()
 
 void Game::start()
 {
-    // spdlog::info("start");
     start_new_game();
-    set_state(StatePlaying::get_instance());
+    resume();
 }
 
 void Game::stop()
 {
+    is_started_ = false;
     player_->save();
     set_state(StateMenu::get_instance());
 }
 
 void Game::resume()
 {
-    // block_clock_.isRunning() ? block_clock_.stop() : block_clock_.start();
-    //  level_clock_.isRunning() ? level_clock_.stop() : level_clock_.start();
-    set_state(StatePlaying::get_instance());
+    if (!block_clock_.isRunning())
+    {
+        block_clock_.start();
+    }
+    if (!level_clock_.isRunning())
+    {
+        level_clock_.start();
+    }
+
+    if (is_started())
+    {
+        set_state(StatePlaying::get_instance());
+    }
 }
 
 void Game::pause()
 {
-    // block_clock_.isRunning() ? block_clock_.stop() : block_clock_.start();
-    // level_clock_.isRunning() ? level_clock_.stop() : level_clock_.start();
-    set_state(StatePaused::get_instance());
+    if (block_clock_.isRunning())
+    {
+        block_clock_.stop();
+    }
+    if (level_clock_.isRunning())
+    {
+        level_clock_.stop();
+    }
+
+    set_state(StateMenu::get_instance());
 }
 
 void Game::exit()
@@ -264,15 +294,15 @@ void Game::render_level_countdown(const std::shared_ptr<sf::RenderWindow> window
     window->draw(countdown_text);
 }
 
-void Game::process_game_state(const GameState &state)
+void Game::process_game_evaluation(const Evaluation &evaluation)
 {
-    if (state.game_over)
+    if (evaluation.game_over)
     {
         game_over();
         return;
     }
 
-    if (state.new_block)
+    if (evaluation.new_block)
     {
         // field should only be changed (according to level) when new block is created
         if (level_event_countdown_ > 0 && level_clock_.getElapsedTime().asSeconds() >= level_event_countdown_)
@@ -284,9 +314,9 @@ void Game::process_game_state(const GameState &state)
         }
     }
 
-    if (state.nr_of_full_lines > 0)
+    if (evaluation.nr_of_full_lines > 0)
     {
-        update_score(state.nr_of_full_lines);
+        update_score(evaluation.nr_of_full_lines);
 
         // clear lines every X lines (but do not clear whole field)
         if (nr_of_lines_ > next_nr_of_lines_bonus_)

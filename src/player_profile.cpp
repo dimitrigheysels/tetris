@@ -1,4 +1,5 @@
 #include <fstream>
+#include <spdlog/spdlog.h>
 
 #include "include/player_profile.h"
 #include "include/resource_manager.hpp"
@@ -50,6 +51,7 @@ void PlayerProfile::render_highscore(const std::shared_ptr<sf::RenderWindow> &wi
 
 void PlayerProfile::save() const
 {
+    spdlog::info("Saving player profile...");
     std::ofstream out(player_profile_path, std::fstream::out | std::fstream::binary | std::fstream::trunc);
     out.write(reinterpret_cast<const char *>(&highscore_), sizeof(highscore_));
     out.write(reinterpret_cast<const char *>(&highlines_), sizeof(highlines_));
@@ -59,6 +61,7 @@ void PlayerProfile::save() const
 
 void PlayerProfile::load()
 {
+    spdlog::info("Loading player profile...");
     std::ifstream in(player_profile_path, std::ios::in | std::ios::binary);
     in.read(reinterpret_cast<char *>(&highscore_), sizeof(highscore_));
     in.read(reinterpret_cast<char *>(&highlines_), sizeof(highlines_));

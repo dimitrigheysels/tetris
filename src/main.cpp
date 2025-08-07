@@ -5,7 +5,6 @@
 #include <nlohmann/json.hpp>
 
 #include "include/game.h"
-// #include "include/sound_manager.h"
 #include "include/resource_manager.hpp"
 
 int main()
@@ -20,14 +19,9 @@ int main()
 
     FieldDescription field_description("../res/standard_field.txt");
     // FieldDescription field_description("../res/piramid_field.txt");
-    if (!field_description.is_valid())
-    {
-        spdlog::error("invalid field description");
-        exit(1);
-    }
 
-    std::shared_ptr<Game> game = std::make_shared<Game>(field_description);
-    game->init();
+    std::shared_ptr<Game> game = std::make_shared<Game>();
+    game->init(field_description);
 
     // game loop
     while (game->is_running())

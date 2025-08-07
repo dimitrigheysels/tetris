@@ -24,7 +24,7 @@ constexpr int SCORE_NEXT_LEVEL = 100;
 constexpr int BONUS_EVERY_LINES = 100;
 constexpr int BONUS_LINES = 4;
 
-struct GameState
+struct Evaluation
 {
     bool game_over{false};
     int nr_of_full_lines{0};

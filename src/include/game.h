@@ -19,7 +19,7 @@ private:
     sf::Clock block_clock_;
 
     bool is_running_;
-    bool is_paused_;
+    bool is_started_;
 
     std::shared_ptr<Field> field_;
     std::shared_ptr<PlayerProfile> player_;
@@ -32,24 +32,23 @@ private:
 
     int next_nr_of_lines_bonus_;
 
-    std::shared_ptr<SoundManager> sm_;
-
-    void process_game_state(const GameState &state);
+    void process_game_evaluation(const Evaluation &evaluation);
 
     void render_gameover(const std::shared_ptr<sf::RenderWindow> window) const;
     void render_scoreboard(const std::shared_ptr<sf::RenderWindow> window) const;
     void render_level_countdown(const std::shared_ptr<sf::RenderWindow> window) const;
 
 public:
-    Game(const FieldDescription &field_description);
+    Game();
 
-    void init();
+    void init(const FieldDescription &field_description);
 
     void set_state(const std::shared_ptr<State> &state);
 
     bool is_running() const;
 
     void start_new_game();
+    bool is_started() const;
 
     bool update(const std::optional<sf::Event> &event);
 

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <ranges>
+#include <exception>
 
 #include "include/field.h"
 
@@ -100,6 +101,7 @@ bool FieldDescription::contains_boundary_coordinates(int row, int col) const
 
 Field::Field()
 {
+    spdlog::debug("Field::Field()");
     for (int row = 0; row < MAX_ROWS + 1; row++)
     {
         for (int col = 0; col < MAX_COLS; col++)
@@ -109,9 +111,15 @@ Field::Field()
     }
 }
 
-Field::Field(const FieldDescription &field_description) : Field()
+void Field::init(const FieldDescription &field_description)
 {
     spdlog::info("Initializing field ...");
+
+    if (!field_description.is_valid())
+    {
+        spdlog::error("Invalid field description");
+        throw std::exception();
+    }
 
     // create playfield
     for (int row = 1; row <= field_description.get_height(); row++)
@@ -213,9 +221,9 @@ void Field::update_tiles()
     }
 }
 
-GameState Field::down_block()
+Evaluation Field::down_block()
 {
-    GameState state{};
+    Evaluation evaluation{};
 
     if (current_block_->can_down(tiles_))
     {
@@ -227,8 +235,8 @@ GameState Field::down_block()
         int r = current_block_->get_position_row();
         if (r == PLAYFIELD_TOP_ROW)
         {
-            state.game_over = true;
-            return state;
+            evaluation.game_over = true;
+            return evaluation;
         }
 
         current_block_->set_fixed_in_field(tiles_);
@@ -270,16 +278,16 @@ GameState Field::down_block()
         // show next block
         add_new_block();
 
-        state.new_block = true;
-        state.nr_of_full_lines = nr_of_full_lines;
+        evaluation.new_block = true;
+        evaluation.nr_of_full_lines = nr_of_full_lines;
     }
 
     update_tiles();
 
-    return state;
+    return evaluation;
 }
 
-GameState Field::drop_block()
+Evaluation Field::drop_block()
 {
     while (current_block_->can_down(tiles_))
     {

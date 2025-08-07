@@ -13,11 +13,13 @@ class MenuItem
 private:
     int sequence_nr_;
     std::string title_;
+    std::function<bool()> is_enabled_;
     std::function<void()> action_;
 
 public:
-    MenuItem(int sequence_nr, const std::string &title, std::function<void()> action);
+    MenuItem(int sequence_nr, const std::string &title, std::function<bool()> is_enabled, std::function<void()> action);
 
+    bool is_enabled();
     void execute();
 
     void display(int selected_sequence_nr, const std::shared_ptr<sf::RenderWindow> window);
@@ -37,6 +39,7 @@ public:
     void goto_next_menuitem();
     void goto_previous_menuitem();
     void select_menuitem();
+    void reset_selection();
 
     void display(const std::shared_ptr<sf::RenderWindow> window);
 };

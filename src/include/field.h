@@ -39,8 +39,6 @@ class UI;
 class Field
 {
 private:
-    Field();
-
     std::shared_ptr<Tile> tiles_[MAX_ROWS + 1 /*hidden row*/][MAX_COLS];
 
     std::shared_ptr<Block> next_block_;
@@ -58,16 +56,18 @@ private:
     void render_tiles(const std::shared_ptr<sf::RenderWindow> window) const;
 
 public:
-    Field(const FieldDescription &field_description);
+    Field();
 
     inline int get_top_row() const { return top_row_; }
+
+    void init(const FieldDescription &field_description);
 
     void reset();
     void add_new_block();
     void update_tiles();
 
-    GameState down_block();
-    GameState drop_block();
+    Evaluation down_block();
+    Evaluation drop_block();
     void left_block();
     void right_block();
     void up_block();

@@ -12,6 +12,7 @@ Audio::Audio(std::filesystem::path path)
 
 void Audio::play()
 {
+    spdlog::debug("Playing sound");
     sound_->play();
 }
 

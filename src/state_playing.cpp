@@ -32,6 +32,7 @@ std::string_view StatePlaying::get_name() const
 
 bool StatePlaying::update(const std::optional<sf::Event> &input_event)
 {
+    bool invalidate = false;
     if (input_event)
     {
         const auto e = input_event->getIf<sf::Event::KeyPressed>();
@@ -41,38 +42,39 @@ bool StatePlaying::update(const std::optional<sf::Event> &input_event)
             {
             case sf::Keyboard::Scancode::Escape:
             {
-                game_.stop();
-                return true;
-            }
-            case sf::Keyboard::Scancode::P:
-            {
                 game_.pause();
-                return true;
+                invalidate = true;
+                break;
             }
             case sf::Keyboard::Scancode::Space:
             {
                 game_.drop_block();
-                return true;
+                invalidate = true;
+                break;
             }
             case sf::Keyboard::Scancode::Down:
             {
                 game_.down_block();
-                return true;
+                invalidate = true;
+                break;
             }
             case sf::Keyboard::Scancode::Left:
             {
                 game_.left_block();
-                return true;
+                invalidate = true;
+                break;
             }
             case sf::Keyboard::Scancode::Right:
             {
                 game_.right_block();
-                return true;
+                invalidate = true;
+                break;
             }
             case sf::Keyboard::Scancode::Up:
             {
                 game_.up_block();
-                return true;
+                invalidate = true;
+                break;
             }
             }
         }
@@ -80,12 +82,12 @@ bool StatePlaying::update(const std::optional<sf::Event> &input_event)
     else
     {
         game_.progress_game();
-        return true;
+        invalidate = true;
     }
 
     game_.check_level_clock();
 
-    return false;
+    return invalidate;
 }
 
 void StatePlaying::display(const std::shared_ptr<sf::RenderWindow> window) const

@@ -66,27 +66,6 @@ public:
     void display(const std::shared_ptr<sf::RenderWindow> window) const override;
 };
 
-class StatePaused : public StatePlaying
-{
-private:
-    static inline std::shared_ptr<StatePaused> instance_ = nullptr;
-
-    StatePaused(Game &game);
-
-public:
-    StatePaused(const StatePaused &) = delete;
-    void operator=(const StatePaused &) = delete;
-    ~StatePaused() {};
-
-    static void init(Game &game);
-
-    static std::shared_ptr<StatePaused> &get_instance();
-
-    std::string_view get_name() const override;
-    bool update(const std::optional<sf::Event> &input_event) override;
-    void display(const std::shared_ptr<sf::RenderWindow> window) const override;
-};
-
 class StateGameOver : public State
 {
 private:

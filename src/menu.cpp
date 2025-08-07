@@ -16,7 +16,8 @@ void Menu::goto_next_menuitem()
 {
     if (selected_sequence_nr_ < items_.size() - 1)
     {
-        selected_sequence_nr_++;
+        while (!items_.at(++selected_sequence_nr_)->is_enabled())
+            ;
     }
 }
 
@@ -24,13 +25,21 @@ void Menu::goto_previous_menuitem()
 {
     if (selected_sequence_nr_ > 0)
     {
-        selected_sequence_nr_--;
+        while (!items_.at(--selected_sequence_nr_)->is_enabled())
+            ;
     }
 }
 
 void Menu::select_menuitem()
 {
     items_.at(selected_sequence_nr_)->execute();
+    selected_sequence_nr_ = 0;
+}
+
+void Menu::reset_selection()
+{
+    selected_sequence_nr_ = -10;
+    goto_next_menuitem();
 }
 
 void Menu::display(const std::shared_ptr<sf::RenderWindow> window)
@@ -53,13 +62,21 @@ void Menu::display(const std::shared_ptr<sf::RenderWindow> window)
     window->draw(title_sprite);
 }
 
-MenuItem::MenuItem(int sequence_nr, const std::string &title, std::function<void()> action) : sequence_nr_(sequence_nr), title_(title), action_(action)
+MenuItem::MenuItem(int sequence_nr, const std::string &title, std::function<bool()> is_enabled, std::function<void()> action) : sequence_nr_(sequence_nr), title_(title), is_enabled_(is_enabled), action_(action)
 {
+}
+
+bool MenuItem::is_enabled()
+{
+    return is_enabled_();
 }
 
 void MenuItem::execute()
 {
-    action_();
+    if (is_enabled_())
+    {
+        action_();
+    }
 }
 
 void MenuItem::display(int selected_sequence_nr, const std::shared_ptr<sf::RenderWindow> window)
@@ -70,6 +87,14 @@ void MenuItem::display(int selected_sequence_nr, const std::shared_ptr<sf::Rende
     menuitem_text.setPosition({400,
                                start_y});
     menuitem_text.setOutlineThickness(2);
+    if (is_enabled_())
+    {
+        menuitem_text.setFillColor(sf::Color::White);
+    }
+    else
+    {
+        menuitem_text.setFillColor(sf::Color(128, 128, 128));
+    }
 
     if (sequence_nr_ == selected_sequence_nr)
     {

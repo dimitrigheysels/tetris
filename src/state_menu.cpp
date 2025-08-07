@@ -27,19 +27,30 @@ StateMenu::StateMenu(Game &game) : State(game)
 
     std::shared_ptr<Menu> main_menu = std::make_shared<Menu>("Main menu");
     std::shared_ptr<Menu> options_menu = std::make_shared<Menu>("Options");
-    std::shared_ptr<MenuItem> start = std::make_shared<MenuItem>(0, "Start", [this]()
+    std::shared_ptr<MenuItem> start = std::make_shared<MenuItem>(0, "Start", []()
+                                                                 { return true; }, [this]()
                                                                  { game_.start(); });
-    std::shared_ptr<MenuItem> options = std::make_shared<MenuItem>(1, "Options", [this, options_menu]()
+    std::shared_ptr<MenuItem> resume = std::make_shared<MenuItem>(1, "Resume game", [this]()
+                                                                  { bool b = game_.is_started();
+                                                                    spdlog::debug("in resume::is_enabled_ function: {}", b); return b; }, [this]()
+                                                                  { game_.resume(); });
+    std::shared_ptr<MenuItem> options = std::make_shared<MenuItem>(2, "Options", []()
+                                                                   { return true; }, [this, options_menu]()
                                                                    { active_menu_ = options_menu; });
-    std::shared_ptr<MenuItem> exit = std::make_shared<MenuItem>(2, "Exit", [this]()
+    std::shared_ptr<MenuItem> exit = std::make_shared<MenuItem>(3, "Exit", []()
+                                                                { return true; }, [this]()
                                                                 { game_.exit(); });
 
-    std::shared_ptr<MenuItem> hall_of_fame = std::make_shared<MenuItem>(0, "Hall Of Fame", [this]() {});
-    std::shared_ptr<MenuItem> player_profile = std::make_shared<MenuItem>(1, "Player profile", [this]() {});
-    std::shared_ptr<MenuItem> back_to_main_menu = std::make_shared<MenuItem>(2, "Back", [this, main_menu]()
+    std::shared_ptr<MenuItem> hall_of_fame = std::make_shared<MenuItem>(0, "Hall Of Fame", []()
+                                                                        { return true; }, [this]() {});
+    std::shared_ptr<MenuItem> player_profile = std::make_shared<MenuItem>(1, "Player profile", []()
+                                                                          { return true; }, [this]() {});
+    std::shared_ptr<MenuItem> back_to_main_menu = std::make_shared<MenuItem>(2, "Back", []()
+                                                                             { return true; }, [this, main_menu]()
                                                                              { active_menu_ = main_menu; });
 
     main_menu->add_menuitem(start);
+    main_menu->add_menuitem(resume);
     main_menu->add_menuitem(options);
     main_menu->add_menuitem(exit);
     options_menu->add_menuitem(hall_of_fame);
@@ -76,6 +87,11 @@ bool StateMenu::update(const std::optional<sf::Event> &input_event)
             case sf::Keyboard::Scancode::Enter:
             {
                 active_menu_->select_menuitem();
+                return true;
+            }
+            case sf::Keyboard::Scancode::Escape:
+            {
+                game_.resume();
                 return true;
             }
             }
