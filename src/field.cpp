@@ -1,4 +1,4 @@
-
+#include <iostream>
 #include <spdlog/spdlog.h>
 #include <exception>
 
@@ -7,7 +7,7 @@
 Field::Field()
 {
     spdlog::debug("Field::Field()");
-    for (int row = 0; row < MAX_ROWS + 1; row++)
+    for (int row = 0; row < MAX_ROWS; row++)
     {
         for (int col = 0; col < MAX_COLS; col++)
         {
@@ -27,7 +27,7 @@ void Field::init(const FieldDescription &field_description)
     }
 
     // create playfield
-    for (int row = 1; row <= field_description.get_height(); row++)
+    for (int row = 1 /*0=hidden row*/; row <= field_description.get_height(); row++)
     {
         for (int col = 0; col < field_description.get_width(); col++)
         {
@@ -40,12 +40,12 @@ void Field::init(const FieldDescription &field_description)
     }
 
     start_col_ = field_description.get_start_col();
-    top_row_ = field_description.get_height();
+    top_of_stack_ = MAX_ROWS - 1; /*hidden row*/ // field_description.get_height();
 }
 
 void Field::reset()
 {
-    for (int row = 0; row < MAX_ROWS + 1; row++)
+    for (int row = 1; row < MAX_ROWS; row++)
     {
         for (int col = 0; col < MAX_COLS; col++)
         {
@@ -55,6 +55,8 @@ void Field::reset()
             }
         }
     }
+
+    top_of_stack_ = MAX_ROWS - 1;
 }
 
 void Field::add_new_block()
@@ -177,8 +179,8 @@ Evaluation Field::down_block()
             }
         }
 
-        top_row_ = std::min(top_row_, current_block_->get_top_boundary());
-        top_row_ += nr_of_full_lines;
+        top_of_stack_ = std::min(top_of_stack_, current_block_->get_top_boundary());
+        top_of_stack_ += nr_of_full_lines;
 
         // show next block
         add_new_block();
@@ -235,12 +237,12 @@ void Field::up_block()
 
 void Field::clear_lines(int nr_of_lines)
 {
-    spdlog::debug("Clear {} lines from row {}", nr_of_lines, top_row_);
+    spdlog::debug("Clear {} lines from row {}", nr_of_lines, top_of_stack_);
 
     // if field height > 5, clear 5 rows from top of field
-    if (top_row_ <= PLAYFIELD_BOTTOM_ROW - nr_of_lines)
+    if (top_of_stack_ <= PLAYFIELD_BOTTOM_ROW - nr_of_lines)
     {
-        for (int r = top_row_; r < top_row_ + nr_of_lines; r++)
+        for (int r = top_of_stack_; r < top_of_stack_ + nr_of_lines; r++)
         {
             for (int c = PLAYFIELD_FIRST_COL; c < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; c++)
             {
@@ -251,11 +253,11 @@ void Field::clear_lines(int nr_of_lines)
             }
         }
 
-        top_row_ += nr_of_lines;
+        top_of_stack_ += nr_of_lines;
     }
 }
 
-void Field::scatter_rows(int from_row, int to_row)
+void Field::scatter_rows(int from_row, int to_row, float change)
 {
     spdlog::debug("Scattering rows - from row {} to row {}", from_row, to_row);
 
@@ -263,8 +265,8 @@ void Field::scatter_rows(int from_row, int to_row)
     {
         for (int c = PLAYFIELD_FIRST_COL; c < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; c++)
         {
-            bool should_toggle = std::experimental::randint(0, 1);
-            if (should_toggle)
+            int should_toggle = std::experimental::randint(1, static_cast<int>(1 / change));
+            if (should_toggle == 1)
             {
                 tiles_[r][c]->toggle();
             }
@@ -289,7 +291,7 @@ void Field::add_scattered_rows(int from_row, int to_row)
         }
     }
 
-    top_row_ += (from_row - to_row);
+    top_of_stack_ += (from_row - to_row);
 }
 
 void Field::display(const std::shared_ptr<sf::RenderWindow> window) const
@@ -337,7 +339,7 @@ int Field::check_full_lines(int from_row, int *full_line_indexes) const
     spdlog::debug("Checking for full lines from row {}", from_row);
 
     int nr_of_full_lines = 0;
-    for (int row = from_row; row < std::min(PLAYFIELD_TOP_ROW + /*PLAYFIELD_HEIGHT*/ 25, from_row + BLOCK_LAYOUT_SIZE); row++)
+    for (int row = from_row; row < std::min(PLAYFIELD_TOP_ROW + PLAYFIELD_HEIGHT, from_row + BLOCK_LAYOUT_SIZE); row++)
     {
         if (check_full_line(row))
         {
@@ -351,8 +353,7 @@ int Field::check_full_lines(int from_row, int *full_line_indexes) const
 
 bool Field::check_full_line(int row) const
 {
-    // from first boundary tile in row to last boundary tile in row
-    for (int col = 1; col < PLAYFIELD_FIRST_COL + /*PLAYFIELD_WIDTH*/ 10; col++)
+    for (int col = 1; col < PLAYFIELD_FIRST_COL + PLAYFIELD_WIDTH; col++)
     {
         if (!(tiles_[row][col]->is_fixed() || tiles_[row][col]->is_boundary()))
         {
@@ -387,7 +388,7 @@ void Field::render_next_block(const std::shared_ptr<sf::RenderWindow> window) co
 
 void Field::render_tiles(const std::shared_ptr<sf::RenderWindow> window) const
 {
-    for (int row = 1; row < MAX_ROWS + 1; row++)
+    for (int row = 1; row < MAX_ROWS; row++)
     {
         for (int col = 0; col < MAX_COLS; col++)
         {
@@ -404,7 +405,7 @@ void Field::render_tiles(const std::shared_ptr<sf::RenderWindow> window) const
             }
             else if (t->is_boundary())
             {
-                // if (row == top_row_ && (col == 0 || col == PLAYFIELD_WIDTH - 1))
+                // if (row == top_of_stack_ && (col == 0 || col == PLAYFIELD_WIDTH - 1))
                 // {
                 //     shape.setFillColor(sf::Color(32, 32, 32));
                 // }

@@ -235,11 +235,14 @@ void Game::start_new_game()
     score_ = 0;
     nr_of_lines_ = 0;
 
-    level_ = std::make_shared<Level_4>();
+    level_ = std::make_shared<Level_5>();
     level_event_countdown_ = level_->event_countdown_in_seconds();
 
     field_->reset();
     field_->add_new_block();
+
+    level_clock_.reset();
+    block_clock_.reset();
 
     is_started_ = true;
 }

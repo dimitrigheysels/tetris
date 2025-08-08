@@ -46,16 +46,16 @@ FieldDescription::FieldDescription(const std::filesystem::path &path)
 bool FieldDescription::is_valid() const
 {
     // field should at least be able to contain a block (4x4)
-    if (width_ < 6)
+    if (width_ < 6 || width_ > 15)
     {
-        spdlog::info("Field description 'width' is too small");
+        spdlog::info("Field description 'width' must be between 6 and 15");
         return false;
     }
-    if (height_ < 4)
-    {
-        spdlog::info("Field description 'height' is too small");
-        return false;
-    }
+    // if (height_ < 4 || height_ > 26)
+    // {
+    //     spdlog::info("Field description 'height' is too small");
+    //     return false;
+    // }
     // field should have at least two boundary tiles for each row
     if (boundary_coordinates_.size() < height_ * 2)
     {

@@ -13,9 +13,10 @@ class Field
 {
 private:
     int start_col_;
-    int top_row_;
+    int top_of_stack_;
 
     std::shared_ptr<Tile> tiles_[MAX_ROWS + 1 /*hidden row*/][MAX_COLS];
+
     std::shared_ptr<Block> next_block_;
     std::shared_ptr<Block> current_block_;
 
@@ -29,7 +30,7 @@ private:
 public:
     Field();
 
-    inline int get_top_row() const { return top_row_; }
+    inline int get_top_of_stack() const { return top_of_stack_; }
 
     void init(const FieldDescription &field_description);
     void reset();
@@ -44,7 +45,7 @@ public:
     void up_block();
 
     void clear_lines(int nr_of_lines);
-    void scatter_rows(int from_row, int to_row);
+    void scatter_rows(int from_row, int to_row, float change);
     void add_scattered_rows(int from_row, int to_row);
 
     void display(const std::shared_ptr<sf::RenderWindow> window) const;
